@@ -2,7 +2,7 @@ package GamePlayModel;
 
 import MapEditorModel.ContinentModel;
 import MapEditorModel.CountryModel;
-import MapEditorModel.MapModel;
+import Strategy.Strategy;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -14,19 +14,18 @@ import java.util.HashMap;
 
 public class PlayerModel {
     String PlayerName;
-    String PlayerStrategy;
     int totalNumArmy;
     int numArmyRemainPlace;
     int totalNumReinforceArmy;
     int NumReinforceArmyRemainPlace;
+    private Strategy strategy;
     ArrayList<CountryModel> playerCountries;
     ArrayList<ContinentModel> playerContinents;
     ArrayList<Card> cardList;
 
 
-    public PlayerModel(String playerName, String playerStrategy) {
+    public PlayerModel(String playerName) {
         PlayerName = playerName;
-        PlayerStrategy = playerStrategy;
         playerCountries = new ArrayList<>();
         playerContinents = new ArrayList<>();
         cardList = new ArrayList<>();
@@ -48,22 +47,7 @@ public class PlayerModel {
     public void setPlayerName(String playerName) {
         PlayerName = playerName;
     }
-/**
-     * This method  retrieves the strategy of the player
-     * @return playerStrategy
-     */
 
-    public String getPlayerStrategy() {
-        return PlayerStrategy;
-    }
-
-    /**
-     * This method sets Player's Strategy
-     * @param playerStrategy
-     */
-    public void setPlayerStrategy(String playerStrategy) {
-        PlayerStrategy = playerStrategy;
-    }
     /**
      * This method retrieves the list of countries associated to the player
      * @return
@@ -95,7 +79,7 @@ public class PlayerModel {
         for (ContinentModel continent:continentList ){
             if (counter.containsKey(continent.getContinentName())){
                 if (counter.get(continent.getContinentName())==continent.getCountriesSize() &&
-                !this.playerContinents.contains(continent)){
+                        !this.playerContinents.contains(continent)){
                     //The continent is controlled by this player
                     this.playerContinents.add(continent);
                 }
@@ -110,8 +94,8 @@ public class PlayerModel {
 
     public int getTotalNumArmy() {
         return totalNumArmy;
-    }  
-     /**
+    }
+    /**
      * This methos assigns armies to players based on their size.
      *
      */
@@ -135,16 +119,16 @@ public class PlayerModel {
                 break;
         }
 
-    } 
-     /**
+    }
+    /**
      * This method return the remaining number of armies
      *
      */
 
     public int getNumArmyRemainPlace() {
         return numArmyRemainPlace;
-    } 
-     /**
+    }
+    /**
      * This method sets the number of armies remaining
      *
      */
@@ -152,22 +136,22 @@ public class PlayerModel {
     public void setNumArmyRemainPlace(int numArmyRemainPlace) {
         this.numArmyRemainPlace = numArmyRemainPlace;
     }
- /**
+    /**
      * This method returns the total number of reinforce army
      *
      */
     public int getTotalNumReinforceArmy() {
         return totalNumReinforceArmy;
     }
-     /**
+    /**
      * This method sets the total number of reinforce army
      *
      */
 
     public void setTotalNumReinforceArmy(int totalNumReinforceArmy) {
         this.totalNumReinforceArmy = totalNumReinforceArmy;
-    } 
-     /**
+    }
+    /**
      * This method  get the total number of armies that remain in their place
      *
      */
@@ -175,7 +159,7 @@ public class PlayerModel {
     public int getNumReinforceArmyRemainPlace() {
         return NumReinforceArmyRemainPlace;
     }
-     /**
+    /**
      * This method sets the total number of armies that remian in the place
      *
      */
@@ -213,5 +197,13 @@ public class PlayerModel {
     }
     public void addArmyNum(int num) {
         this.totalNumArmy= this.totalNumArmy + num;
+    }
+
+    public Strategy getStrategy() {
+        return strategy;
+    }
+
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 }

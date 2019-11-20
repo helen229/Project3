@@ -4,6 +4,8 @@ import MapEditor.EditMap;
 import MapEditorModel.ContinentModel;
 import MapEditorModel.CountryModel;
 import MapEditorModel.MapModel;
+import Strategy.*;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,8 +15,8 @@ import java.util.Random;
 import static java.lang.System.exit;
 
 /**
-   * This class defines the characteristics of the a Game in a particular phase
-   */
+ * This class defines the characteristics of the a Game in a particular phase
+ */
 public class GameModel extends Observable {
 
 
@@ -29,7 +31,8 @@ public class GameModel extends Observable {
     CountryModel attackerCountry;
     //To make sure attack move command only can run when this flag is true
     boolean ifAttackerWin=false;
-//    //To prevent attack declare in the allout mode
+    boolean gameStopFlag = false;
+    //    //To prevent attack declare in the allout mode
 //    boolean ifAttackAllOut=false;
     //To check if the current player can get a card
     boolean hasPlayerConquered=false;
@@ -58,19 +61,17 @@ public class GameModel extends Observable {
      * This method allows a player to be added.
      * @param playerName the parameter used to identify the player to be added.
      */
-    public void addPlayer(String playerName, String playerStrategy){
+    public void addPlayer(String playerName, String strategy){
         ArrayList<String> playerNameList = getPlayerNameList();
         if ((getNumOfPlayers()<=5) && (isNotPopulated())){
             if (playerNameList.contains(playerName)){
                 System.out.println("Add "+playerName+" Failed, it's already exist");
             }else {
-                if ((playerStrategy=="human")||(playerStrategy=="aggressive")||(playerStrategy=="benevolent")||(playerStrategy=="random")||(playerStrategy=="cheater")) {
-                    PlayerModel player= new PlayerModel(playerName,playerStrategy);
-                    playerList.add(player);
-                    System.out.println("Add "+playerName+" with "+ playerStrategy+" strategy Succeed");
-                }else {
-                    System.out.println("Add "+playerName+" Failed, "+ playerStrategy+" strategy is not valid.");
-                    }
+                PlayerModel player= new PlayerModel(playerName);
+                if (!setPlayerStrategy(player, strategy))
+                    return;
+                playerList.add(player);
+                System.out.println("Add "+playerName+" Succeed");
             }
         } else if (getNumOfPlayers()>5){
             System.out.println("Add "+playerName+" Failed, the maximum number of players is 6.");
@@ -78,6 +79,38 @@ public class GameModel extends Observable {
             System.out.println("Add "+playerName+" Failed, The map is already populated. There is no more unowned country.");
         }
 
+    }
+
+    public boolean setPlayerStrategy(PlayerModel player, String strategyName) {
+        Strategy strategy;
+        boolean res = true;
+        switch (strategyName) {
+            case "Cheater":
+                strategy = new CheaterStrategy(player);
+                player.setStrategy(strategy);
+                break;
+            case "Aggressive":
+                strategy = new AggressiveStrategy(player);
+                player.setStrategy(strategy);
+                break;
+            case "Benevolent":
+                strategy = new BenevolentStrategy(player);
+                player.setStrategy(strategy);
+                break;
+            case "Random":
+                strategy = new RandomStrategy(player);
+                player.setStrategy(strategy);
+                break;
+            case "Human":
+                strategy = new HumanStrategy(player);
+                player.setStrategy(strategy);
+                break;
+            default:
+                System.out.println("Invalid Strategy name");
+                res = false;
+                break;
+        }
+        return res;
     }
 
     /**
@@ -92,7 +125,7 @@ public class GameModel extends Observable {
         }else {
             System.out.println("Remove "+playerName+" Failed, it's not exist");
         }
-    } 
+    }
     /**
      * This method returns the number of players
      */
@@ -115,29 +148,29 @@ public class GameModel extends Observable {
             } else {
                 int totalCountriesAssigned=0;
                 int selectedCountry=0;
-               int selectedOwner=-1;
-               for (int j=0; j<numberCountry; j++)
-                   for (int i=0; i<numOfPlayers;i++){
-                       do{
-                           selectedCountry=(int) Math.floor((Math.random() * countrySize));
-                       }
-                       while (!"".equals(countries.get(selectedCountry).getOwner().getPlayerName()));
-                       countries.get(selectedCountry).setOwner(playerList.get(i));
-                       countries.get(selectedCountry).setArmyNum(countries.get(selectedCountry).getArmyNum()+1);
-                       playerList.get(i).addPlayerCountries(countries.get(selectedCountry));
-                       totalCountriesAssigned++;
-                   }
-               while(totalCountriesAssigned<countrySize){
-                   selectedOwner++;
-                   do{
-                       selectedCountry=(int) Math.floor((Math.random() * countrySize));
-                   }
-                   while (!"".equals(countries.get(selectedCountry).getOwner().getPlayerName()));
-                   countries.get(selectedCountry).setOwner(playerList.get(selectedOwner));
-                   countries.get(selectedCountry).setArmyNum(countries.get(selectedCountry).getArmyNum()+1);
-                   playerList.get(selectedOwner).addPlayerCountries(countries.get(selectedCountry));
-                   totalCountriesAssigned++;
-               }
+                int selectedOwner=-1;
+                for (int j=0; j<numberCountry; j++)
+                    for (int i=0; i<numOfPlayers;i++){
+                        do{
+                            selectedCountry=(int) Math.floor((Math.random() * countrySize));
+                        }
+                        while (!"".equals(countries.get(selectedCountry).getOwner().getPlayerName()));
+                        countries.get(selectedCountry).setOwner(playerList.get(i));
+                        countries.get(selectedCountry).setArmyNum(countries.get(selectedCountry).getArmyNum()+1);
+                        playerList.get(i).addPlayerCountries(countries.get(selectedCountry));
+                        totalCountriesAssigned++;
+                    }
+                while(totalCountriesAssigned<countrySize){
+                    selectedOwner++;
+                    do{
+                        selectedCountry=(int) Math.floor((Math.random() * countrySize));
+                    }
+                    while (!"".equals(countries.get(selectedCountry).getOwner().getPlayerName()));
+                    countries.get(selectedCountry).setOwner(playerList.get(selectedOwner));
+                    countries.get(selectedCountry).setArmyNum(countries.get(selectedCountry).getArmyNum()+1);
+                    playerList.get(selectedOwner).addPlayerCountries(countries.get(selectedCountry));
+                    totalCountriesAssigned++;
+                }
                 System.out.println("Populate countries succeed");
                 if (selectedOwner<0) selectedOwner=0;
                 else selectedOwner=1;
@@ -146,13 +179,13 @@ public class GameModel extends Observable {
                     playerList.get(i).setTotalNumArmy(this.playerList.size());
                     playerList.get(i).setNumArmyRemainPlace(playerList.get(i).getTotalNumArmy()-playerList.get(i).playerCountries.size());
                 }
-               System.out.println("Assigned initial armies (Number of players):"+ currentPlayer.getTotalNumArmy());
-               System.out.println("Assigned initial countries (one army included)");
-               System.out.println("Total number of countries: "+countrySize);
-               System.out.println("Total number of players: "+numOfPlayers);
-               System.out.println("Minimum number of owned countries: " +numberCountry);
-               System.out.println("Maximum number of owned countries: " +(numberCountry+selectedOwner));
-                
+                System.out.println("Assigned initial armies (Number of players):"+ currentPlayer.getTotalNumArmy());
+                System.out.println("Assigned initial countries (one army included)");
+                System.out.println("Total number of countries: "+countrySize);
+                System.out.println("Total number of players: "+numOfPlayers);
+                System.out.println("Minimum number of owned countries: " +numberCountry);
+                System.out.println("Maximum number of owned countries: " +(numberCountry+selectedOwner));
+
 
                 System.out.println("Start Placing army, Current Player is "+ getCurrentPlayer().getPlayerName());
 
@@ -177,11 +210,11 @@ public class GameModel extends Observable {
         for (int i = 0; i < countries.size(); i++){
             if("".equals(countries.get(i).getOwner().getPlayerName())){
                 return true;
-            } 
+            }
         }
-       return false;
-   }
-    
+        return false;
+    }
+
     /**
      * This method allows players load a map file, that was previously saved
      */
@@ -201,8 +234,8 @@ public class GameModel extends Observable {
             mapModel.getCountryList().clear();
             mapModel.getContinentList().clear();
         }
-    } 
-    
+    }
+
     /**
      * This method allows armies to be assigned to countries
      */
@@ -231,6 +264,7 @@ public class GameModel extends Observable {
                             setCurrentPlayer(playerList.get(currentPlayerNum));
                             startReinforcement();
                             System.out.println("Current player is "+currentPlayer.getPlayerName());
+                            gameStart();
                         }
                     }
                 }else {
@@ -250,6 +284,39 @@ public class GameModel extends Observable {
         }
     }
 
+    //for single mode
+    public void singleAutoPlay() {
+
+        if (phase.equals("Reinforcement") && gameStopFlag == false) {
+            getCurrentPlayer().getStrategy().reinforcement();
+            setPhase("Attack");
+        }
+
+        if (phase.equals("Attack") && gameStopFlag == false) {
+            System.out.println(getCurrentPlayer().getPlayerName()+ "Start to Attack");
+//            if (getCurrentPlayer().getStrategy().attack()) {
+////                String winner = getCurPlayerNameWithColor();
+////                log.add("===== " + winner + " : winned ======");
+//                return;
+//            }
+            setPhase("Fortification");
+        }
+
+        if (phase.equals("Fortification") && gameStopFlag == false) {
+            getCurrentPlayer().getStrategy().reinforcement();
+            setPhase("Reinforcement");
+        }
+
+    }
+
+
+    public void gameStart() {
+        if (getCurrentPlayer().getStrategy().getName().equals("Human")) {
+            singleAutoPlay();
+        } else {
+            return;
+        }
+    }
     /**
      * This method reinforce armies after checking the input.
      */
@@ -312,7 +379,7 @@ public class GameModel extends Observable {
         } else {
             System.out.println("Place all army failed! First populate countries.");
         }
-    } 
+    }
     /**
      * This method allows a player to reinforce
      */
@@ -350,11 +417,11 @@ public class GameModel extends Observable {
                 System.out.println("Not your country! please try again");
             }
         } else{
-                System.out.println("Country name/number is not valid! please try again");
+            System.out.println("Country name/number is not valid! please try again");
         }
 
     }
-    
+
     /**
      * This method allows players to exchange their cards to armies.
      */
@@ -364,42 +431,42 @@ public class GameModel extends Observable {
         int thirdCard=0;
         if (currentPlayer.getCardList().size()>=3)
             if ((cardOne>=0)&&(cardOne<=currentPlayer.getCardList().size())&&
-            (cardTwo>=0)&&(cardTwo<=currentPlayer.getCardList().size())&&
-            (cardThree>=0)&&(cardThree<=currentPlayer.getCardList().size())&&
-            (cardOne!=cardThree)&&(cardOne!=cardTwo)&&(cardTwo!=cardThree)){
+                    (cardTwo>=0)&&(cardTwo<=currentPlayer.getCardList().size())&&
+                    (cardThree>=0)&&(cardThree<=currentPlayer.getCardList().size())&&
+                    (cardOne!=cardThree)&&(cardOne!=cardTwo)&&(cardTwo!=cardThree)){
                 currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getNumReinforceArmyRemainPlace()+currentExchangeTry*5);
 
                 ArrayList<Card> cards = currentPlayer.getCardList();
-                
+
                 System.out.println("You echanged your "+(cards.get(cardOne).getCardType())+" card.");
                 System.out.println("You echanged your "+(cards.get(cardTwo).getCardType())+" card.");
                 System.out.println("You echanged your "+(cards.get(cardThree).getCardType())+" card.");
-                
+
                 if ((cardOne>cardTwo)&&((cardOne>cardThree)))
                     thirdCard=cardOne;
                 else if ((cardTwo>cardOne)&&((cardTwo>cardThree)))
                     thirdCard=cardTwo;
                 else if ((cardThree>cardOne)&&((cardThree>cardTwo)))
                     thirdCard=cardThree;
-                
+
                 if ((cardOne<cardTwo)&&((cardOne<cardThree)))
                     firstCard=cardOne;
                 else if ((cardTwo<cardOne)&&((cardTwo<cardThree)))
                     firstCard=cardTwo;
                 else if ((cardThree<cardOne)&&((cardThree<cardTwo)))
                     firstCard=cardThree;
-                
+
                 if ((cardOne!=firstCard)&&((cardOne!=thirdCard)))
                     secodnCard=cardOne;
                 else if ((cardTwo!=firstCard)&&((cardTwo!=thirdCard)))
                     secodnCard=cardTwo;
                 else if ((cardThree!=firstCard)&&((cardThree!=thirdCard)))
                     secodnCard=cardThree;
-                
+
                 currentPlayer.removeCard(cards.get(thirdCard));
                 currentPlayer.removeCard(cards.get(secodnCard));
                 currentPlayer.removeCard(cards.get(firstCard));
-                
+
                 System.out.println("You recived "+(currentExchangeTry*5)+" new Reinforcement armies.");
                 System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getNumReinforceArmyRemainPlace()+" Reinforcement armies.");
                 currentExchangeTry++;
@@ -458,57 +525,57 @@ public class GameModel extends Observable {
 
     public boolean attackDiceNum(String attackCountryName, String defendCountryName, int diceNum, boolean fromAllOut) {
         if ((mapModel.indexOfCountry(attackCountryName)!=-1)&&(mapModel.indexOfCountry(defendCountryName)!=-1)) {
-        CountryModel defendCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(defendCountryName));
-        CountryModel attackCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(attackCountryName));
-        PlayerModel defender=defendCountry.getOwner();
-        PlayerModel attacker=attackCountry.getOwner();
-        //make sure only the winner move command will be run after player conquered one country
-        if (ifAttackerWin){
-            System.out.println("Please move the army first");
-            return false;
-        }
-        //check if the attack country belong to the current player
-        if (!currentPlayer.equals(attacker)){
-            System.out.println("The attack Country is not belong to the attacker!");
-            return false;
-        }
-        //check if the same owner
-        if (defender.equals(attacker)){
-            System.out.println("The defend Country is belong to the attacker!");
-            return false;
-        }
-        //check if attack country more than one army
-        if (attackCountry.getArmyNum()<2){
-            System.out.println("The attack country must more than one army!");
-            return false;
-        }
-        //check if defend country is an adjacent country
-        if (!attackCountry.getNeighbours().contains(defendCountry.getCountryValue())){
-            System.out.println("The defend Country is not an adjacent country to the attacker!");
-            return false;
-        }
-        if (diceNum<1 || diceNum>3 || diceNum>(attackCountry.getArmyNum()-1)){
-            System.out.println("The dice number is invalid");
-            return false;
-        }
-
-        attackerDice = generateDiceNum(diceNum);
-        this.defenderCountry = defendCountry;
-        this.attackerCountry = attackCountry;
-        System.out.println("Attack declare Valid! "+defender.getPlayerName() + " please set up your dice number");
-        if (fromAllOut){
-            diceNum = 0;
-            if (defenderCountry.getArmyNum()>1){
-                diceNum = 2;
-            }else if (defenderCountry.getArmyNum()==1){
-                diceNum = 1;
+            CountryModel defendCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(defendCountryName));
+            CountryModel attackCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(attackCountryName));
+            PlayerModel defender=defendCountry.getOwner();
+            PlayerModel attacker=attackCountry.getOwner();
+            //make sure only the winner move command will be run after player conquered one country
+            if (ifAttackerWin){
+                System.out.println("Please move the army first");
+                return false;
             }
-            defendDiceNum(diceNum);
-        }
-        return true;
+            //check if the attack country belong to the current player
+            if (!currentPlayer.equals(attacker)){
+                System.out.println("The attack Country is not belong to the attacker!");
+                return false;
+            }
+            //check if the same owner
+            if (defender.equals(attacker)){
+                System.out.println("The defend Country is belong to the attacker!");
+                return false;
+            }
+            //check if attack country more than one army
+            if (attackCountry.getArmyNum()<2){
+                System.out.println("The attack country must more than one army!");
+                return false;
+            }
+            //check if defend country is an adjacent country
+            if (!attackCountry.getNeighbours().contains(defendCountry.getCountryValue())){
+                System.out.println("The defend Country is not an adjacent country to the attacker!");
+                return false;
+            }
+            if (diceNum<1 || diceNum>3 || diceNum>(attackCountry.getArmyNum()-1)){
+                System.out.println("The dice number is invalid");
+                return false;
+            }
+
+            attackerDice = generateDiceNum(diceNum);
+            this.defenderCountry = defendCountry;
+            this.attackerCountry = attackCountry;
+            System.out.println("Attack declare Valid! "+defender.getPlayerName() + " please set up your dice number");
+            if (fromAllOut){
+                diceNum = 0;
+                if (defenderCountry.getArmyNum()>1){
+                    diceNum = 2;
+                }else if (defenderCountry.getArmyNum()==1){
+                    diceNum = 1;
+                }
+                defendDiceNum(diceNum);
+            }
+            return true;
         } else {
-           System.out.println("Country name is not valid! please try again");
-           return false; 
+            System.out.println("Country name is not valid! please try again");
+            return false;
         }
     }
 
@@ -533,24 +600,25 @@ public class GameModel extends Observable {
     public void attackAllOut(String attackCountryName, String defendCountryName) {
         if ((mapModel.indexOfCountry(attackCountryName)!=-1)&&(mapModel.indexOfCountry(defendCountryName)!=-1)) {
 
-        CountryModel attackCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(attackCountryName));
-        int diceNum=0;
-        while (!ifAttackerWin){
-            if (attackCountry.getArmyNum()>3){
-                diceNum=3;
-            }else if (attackCountry.getArmyNum()==3){
-                diceNum=2;
-            }else if (attackCountry.getArmyNum()==2){
-                diceNum=1;
-            }else{
-                System.out.println("The attack country can't attack!");
-                return;
+            CountryModel attackCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(attackCountryName));
+            int diceNum=0;
+            while (!ifAttackerWin){
+                if (attackCountry.getArmyNum()>3){
+                    diceNum=3;
+                }else if (attackCountry.getArmyNum()==3){
+                    diceNum=2;
+                }else if (attackCountry.getArmyNum()==2){
+                    diceNum=1;
+                }else{
+                    System.out.println("The attack country can't attack!");
+                    return;
+                }
+                if (!attackDiceNum(attackCountryName,defendCountryName, diceNum, true))
+                    break;
             }
-            if (!attackDiceNum(attackCountryName,defendCountryName, diceNum, true))
-                break;
-        }
-    } else {
-        System.out.println("Country name is not valid! please try again");
+        } else
+        {
+            System.out.println("Country name is not valid! please try again");
         }
 
     }
@@ -665,6 +733,11 @@ public class GameModel extends Observable {
 
 
     public void stopAttack(){
+        //make sure only the winner move command will be run after player conquered one country
+        if (ifAttackerWin){
+            System.out.println("Please move the army first");
+            return;
+        }
         //set the to the next phase
         System.out.println("Attack Phase Done! please start Fortification phase");
         this.setPhase("Fortification");
@@ -697,39 +770,39 @@ public class GameModel extends Observable {
     public void fortify(String fromcountry, String tocountry, int number) {
         if ((mapModel.indexOfCountry(fromcountry)!=-1)&&(mapModel.indexOfCountry(tocountry)!=-1)&&(number>=0)) {
 
-        CountryModel sourceCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(fromcountry));
-        CountryModel targetCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(tocountry));
-        ArrayList<Boolean> visitedCountryList=new ArrayList<>();
-        for (int i = 0; i < mapModel.getCountryList().size(); i++) {
-            visitedCountryList.add(false);
-        }
-        //can't less than one army
-        if ((sourceCountry.getArmyNum()-number)<1){
-            System.out.println("the Army number is greater than the fromcountry number! Please try again");
-            return;
-        }
-        if (sourceCountry.getOwner().getPlayerName().equals(targetCountry.getOwner().PlayerName)){
-           if (!currentPlayer.getPlayerName().equals(sourceCountry.getOwner().getPlayerName())){
-               System.out.println("the two countries are not belong to current player! Please try again");
-               return;
-           }
-        }else{
-            System.out.println("the two countries are not belong to same player! Please try again");
-            return;
-        }
+            CountryModel sourceCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(fromcountry));
+            CountryModel targetCountry= mapModel.getCountryList().get(mapModel.indexOfCountry(tocountry));
+            ArrayList<Boolean> visitedCountryList=new ArrayList<>();
+            for (int i = 0; i < mapModel.getCountryList().size(); i++) {
+                visitedCountryList.add(false);
+            }
+            //can't less than one army
+            if ((sourceCountry.getArmyNum()-number)<1){
+                System.out.println("the Army number is greater than the fromcountry number! Please try again");
+                return;
+            }
+            if (sourceCountry.getOwner().getPlayerName().equals(targetCountry.getOwner().PlayerName)){
+                if (!currentPlayer.getPlayerName().equals(sourceCountry.getOwner().getPlayerName())){
+                    System.out.println("the two countries are not belong to current player! Please try again");
+                    return;
+                }
+            }else{
+                System.out.println("the two countries are not belong to same player! Please try again");
+                return;
+            }
 
-        if (existPath(sourceCountry,targetCountry,visitedCountryList)){
-            sourceCountry.setArmyNum(sourceCountry.getArmyNum()-number);
-            targetCountry.setArmyNum(targetCountry.getArmyNum()+number);
-            System.out.println("this path is validate, fortify succeed");
-            this.fortifyNone();
-        }else {
-            System.out.println("this path is not validate");
-        }
+            if (existPath(sourceCountry,targetCountry,visitedCountryList)){
+                sourceCountry.setArmyNum(sourceCountry.getArmyNum()-number);
+                targetCountry.setArmyNum(targetCountry.getArmyNum()+number);
+                System.out.println("this path is validate, fortify succeed");
+                this.fortifyNone();
+            }else {
+                System.out.println("this path is not validate");
+            }
         }else {
             System.out.println("Country name/number is not valid! please try again");
         }
-    } 
+    }
     /**
      * This method checks if a path exist between the two countries
      */
@@ -862,22 +935,22 @@ public class GameModel extends Observable {
             System.out.print(mapModel.getCountryList().get(mapModel.indexOfCountry(neighbourValue)).getCountryName()+", ");
         }
 
-    } 
-    
+    }
+
     /**
      * This method sets the Current Exchange Try number
      */
     public void setCurrentExchangeTry (int currentExchangeTry){
         this.currentExchangeTry = currentExchangeTry;
     }
-    
+
     /**
      * This method returns the Current Exchange Try number
      */
     public int getCurrentExchangeTry (){
         return currentExchangeTry;
     }
-    
+
     /**
      * This method returns the current Player
      */
@@ -885,12 +958,12 @@ public class GameModel extends Observable {
     public PlayerModel getCurrentPlayer() {
         return currentPlayer;
     }
- /**
+    /**
      * This method sets the current player
      */
     public void setCurrentPlayer(PlayerModel currentPlayer) {
         this.currentPlayer = currentPlayer;
-    } 
+    }
     /**
      * This method  returns the phase
      */
