@@ -1,8 +1,13 @@
 package Strategy;
 
 
+import GamePlayModel.GameModel;
 import GamePlayModel.PlayerModel;
 import MapEditorModel.CountryModel;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 /**
  * Aggressive strategy class
@@ -11,14 +16,16 @@ public class AggressiveStrategy implements Strategy {
 
     private String name;
     private PlayerModel player;
+    private GameModel gameModel;
 
     /**
      * constructor
      * @param player player with this strategy
      */
-    public AggressiveStrategy(PlayerModel player) {
+    public AggressiveStrategy(PlayerModel player, GameModel gameModel) {
         name = "aggressive";
         this.player = player;
+        this.gameModel = gameModel;
     }
 
 
@@ -31,48 +38,82 @@ public class AggressiveStrategy implements Strategy {
         return name;
     }
 
-
+    public ArrayList<CountryModel> getAttackableNeighbours(CountryModel country) {
+        ArrayList<CountryModel> neighbours = country.getNeighbours();
+        ArrayList<CountryModel> attackableNeighbours = new ArrayList<CountryModel>();
+        for (CountryModel neighbour: neighbours) {
+            if (!neighbour.getOwner().equals(country.getOwner()))
+                attackableNeighbours.add(neighbour);
+        }
+        Collections.sort(attackableNeighbours, new Comparator<CountryModel>() {
+            @Override
+            public int compare(CountryModel o1, CountryModel o2) {
+                return (o1.getArmyNum()>=o2.getArmyNum())?(o1.getArmyNum()>o2.getArmyNum()?1:0):-1;
+            }
+        });
+        return attackableNeighbours;
+    }
     /**
      * Reinforcement method
      * reinforces its strongest country
      */
     @Override
     public void reinforcement() {
-        int max = 0;
-//        CountryModel destination = null;
-//        for (CountryModel country : player.getPlayerCountries()) {
-//            //loop all countries that belong to this player
-//            if (destination.getDefendersAroundThisCountry().size() > 0) {
-//                if (country.getArmyNum() > max) {
-//                    max = country.getArmyNum();
-//                    destination = country;
-//                }
-//            }
-//        }
-//        if (destination != null) {
-//            int getReinfoArmyNum = curPlayer.getNumberOfArmy();
-//            curPlayer.setArmyList(getReinfoArmyNum);
-//            while (getReinfoArmyNum > 0) {
-//                destination.AddArmy();
-//                getReinfoArmyNum--;
-//            }
-//        }
+
+        CountryModel destination = null;
+        destination = getStrongestCountry(player.getPlayerCountries());
+
+        if (destination != null) {
+            int armyLeft = player.getNumReinforceArmyRemainPlace();
+            player.setNumReinforceArmyRemainPlace(0);
+            player.setTotalNumReinforceArmy(0);
+            player.addArmyNum(armyLeft);
+            System.out.println("Place Reinforcement Army Succeed! "+ player.getPlayerName()
+                    + " added all the armies to " + destination.getCountryName());
+        }else{
+            //all countries in a continent could be happen that makes the destination is null
+            System.out.println("Assign to a random country since there are no country attackable");
+        }
     }
 
 
+    public CountryModel getStrongestCountry(ArrayList<CountryModel> countryList) {
+        CountryModel strongestCountry = null;
+        int max = 0;
+        for (CountryModel country: countryList) {
 
+            if (getAttackableNeighbours(country).isEmpty()){
+               continue;
+            }
+            if(max<country.getArmyNum()){
+                max = country.getArmyNum();
+                strongestCountry = country;
+            }
+
+        }
+        return strongestCountry;
+    }
     /**
      * Attack method
      * always attack with the strongest country until it cannot attack anymore
-     * @param attacker null
-     * @param attackerNum 0
-     * @param defender null
-     * @param defenderNum 0
-     * @param isAllOut true
      */
     @Override
-    public void attack(CountryModel attacker, int attackerNum, CountryModel defender, String defenderNum, boolean isAllOut){
-        System.out.println(" ");
+    public void attack(){
+
+        CountryModel strongestCountry = getStrongestCountry(player.getPlayerCountries());
+        if (strongestCountry != null) {
+            System.out.println(strongestCountry.getCountryName()+" is the strongest country of "+player.getPlayerName());
+            for (CountryModel defendCountry : getAttackableNeighbours(strongestCountry)) {
+                if (strongestCountry.getArmyNum()<2)
+                    return;
+                System.out.println("============="+strongestCountry.getCountryName()+" Attack starts=============");
+                gameModel.attackAllOut(strongestCountry.getCountryName(),defendCountry.getCountryName());
+                if (gameModel.isIfAttackerWin()){
+                    gameModel.winnerMove(gameModel.attackerDice.size());
+                }
+            }
+
+        }
 //        System.out.println(player.getName() + " enter the attack phase");
 //        System.out.println(" ");
 //
@@ -109,37 +150,39 @@ public class AggressiveStrategy implements Strategy {
     }
 
 
-
-    /**
-     * Move army method
-     * move the mininum armies that could
-     * @param num number of army to move
-     */
-    @Override
-    public void winnerMove(int num) {
-
-//        int numArmies = Integer.valueOf(num);
-//        Country attacker = player.getAttacker();
-//        Country defender = player.getDefender();
-//
-//        attacker.setArmies(attacker.getArmies() - numArmies);
-//        defender.setArmies(defender.getArmies() + numArmies);
-//
-//        Phase.getInstance().setActionResult(Action.Show_Next_Phase_Button);
-//        Phase.getInstance().setInvalidInfo("Army Movement Finish. You Can Start Another Attack Or Enter Next Phase Now");
-    }
-
-
     /**
      * Fortification method
      * maximize aggregation of forces in one country
-     * @param source from source
-     * @param target to target
-     * @param armyNumber move num of army
      */
     @Override
-    public void fortification(CountryModel source, CountryModel target, int armyNumber) {
+    public void fortification() {
 
+        CountryModel targetCountry = getStrongestCountry(player.getPlayerCountries());
+        CountryModel sourceCountry = null;
+        ArrayList<CountryModel> candidateList = new ArrayList<>();
+        for (CountryModel country: player.getPlayerCountries()) {
+            candidateList.add(country);
+        }
+        candidateList.remove(targetCountry);
+
+        int max = 0;
+
+        ArrayList<Boolean> visitedCountryList=new ArrayList<>();
+        for (int i = 0; i < gameModel.getMapModel().getCountryList().size(); i++) {
+            visitedCountryList.add(false);
+        }
+
+        if (targetCountry != null) {
+            for (CountryModel country : candidateList) {
+                if (country.getArmyNum()>max && gameModel.existPath(country, targetCountry, visitedCountryList)){
+                    max = country.getArmyNum();
+                    sourceCountry = country;
+                }
+            }
+            gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),sourceCountry.getArmyNum()-1);
+        }else{
+            gameModel.fortifyNone();
+        }
 //        System.out.println(player.getName() + " enter the fortification phase");
 //        System.out.println(" ");
 //        List<Country> decreaseSorted = player.getCountriesOwned().stream()

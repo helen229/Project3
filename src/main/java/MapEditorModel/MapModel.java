@@ -119,8 +119,7 @@ public class MapModel {
         if (country.getNeighbours().size()==0)
             return;
 
-        for (int neighbourValue : country.getNeighbours()){
-            CountryModel neighbourCountry = this.countryList.get(neighbourValue);
+        for (CountryModel neighbourCountry : country.getNeighbours()){
             dfs(neighbourCountry, visitedCountryList, countryList);
         }
 
@@ -143,8 +142,7 @@ public class MapModel {
         if (country.getNeighbours().size()==0)
             return;
 
-        for (int neighbourValue : country.getNeighbours()){
-            CountryModel neighbourCountry = this.countryList.get(neighbourValue);
+        for (CountryModel neighbourCountry : country.getNeighbours()){
             ifAllCountryConnected(neighbourCountry, visitedCountryList);
         }
 
@@ -194,14 +192,14 @@ public class MapModel {
             System.out.print("[]\n\n");
         }
         for (int i = 0; i < country.getNeighbours().size(); i++){
-            int neighbourValue= country.getNeighbours().get(i);
+            CountryModel neighbour= country.getNeighbours().get(i);
             if (i==0)
                 System.out.print("[");
             if (i==country.getNeighbours().size()-1){
-                System.out.println(this.countryList.get(indexOfCountry(neighbourValue)).getCountryName()+"]\n");
+                System.out.println(neighbour.getCountryName()+"]\n");
                 break;
             }
-            System.out.print(this.countryList.get(indexOfCountry(neighbourValue)).getCountryName()+", ");
+            System.out.print(neighbour.getCountryName()+", ");
         }
 
     }
@@ -345,8 +343,8 @@ public class MapModel {
 
             //remove the country from its neighbours list
             for (int i = 0; i < country.getNeighbours().size(); i++){
-                int neighbourValue = country.getNeighbours().get(i);
-                String neighbourName = this.countryList.get(indexOfCountry(neighbourValue)).getCountryName();
+                CountryModel neighbour = country.getNeighbours().get(i);
+                String neighbourName = neighbour.getCountryName();
                 removeNeighbor(countryName, neighbourName);
             }
             this.countryList.remove(indexOfCountry(countryName));
@@ -374,8 +372,8 @@ public class MapModel {
                 System.out.println("This Neighbor Country already exist");
                 return false;
             }
-            country.addNeighbour(neighborCountry.getCountryValue());
-            neighborCountry.addNeighbour(country.getCountryValue());
+            country.addNeighbour(neighborCountry);
+            neighborCountry.addNeighbour(country);
             return true;
         }
         System.out.println("The country or the neighbor country not exists ");

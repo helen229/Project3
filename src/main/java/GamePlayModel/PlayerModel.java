@@ -29,6 +29,7 @@ public class PlayerModel {
         playerCountries = new ArrayList<>();
         playerContinents = new ArrayList<>();
         cardList = new ArrayList<>();
+        strategy = null;
     }
 
     /**
@@ -206,4 +207,5 @@ public class PlayerModel {
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
     }
+
 }

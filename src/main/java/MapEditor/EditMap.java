@@ -113,11 +113,10 @@ public class EditMap {
                             if(size>0) {
                                 String[] borderData = line.trim().split(" ");
                                 int id = Integer.parseInt(borderData[0]);
-                                ArrayList<Integer> adjacent = new ArrayList<>();
+                                ArrayList<CountryModel> adjacent = new ArrayList<>();
                                 for (int i = 1; i < borderData.length; i++) {
-                                    adjacent.add(Integer.valueOf(borderData[i]));
+                                    adjacent.add(mapModel.getCountryList().get(Integer.valueOf(borderData[i])));
                                 }
-
                                 int index= mapModel.indexOfCountry(id);
                                 countries.get(index).setNeighbours(adjacent);
                             }else{

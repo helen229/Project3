@@ -50,21 +50,10 @@ public class BenevolentStrategy implements Strategy{
      * @param isAllOut true
      */
     @Override
-    public void attack(CountryModel attacker, int attackerNum, CountryModel defender, String defenderNum, boolean isAllOut){
+    public void attack(){
 
     }
 
-
-
-    /**
-     * Move army method
-     * move the mininum armies that could
-     * @param num number of army to move
-     */
-    @Override
-    public void winnerMove(int num) {
-
-    }
 
 
     /**
@@ -75,7 +64,7 @@ public class BenevolentStrategy implements Strategy{
      * @param armyNumber move num of army
      */
     @Override
-    public void fortification(CountryModel source, CountryModel target, int armyNumber) {
+    public void fortification() {
 
     }
 }

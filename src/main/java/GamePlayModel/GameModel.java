@@ -26,9 +26,9 @@ public class GameModel extends Observable {
     int currentPlayerNum;
     int currentExchangeTry;
     String phase;
-    ArrayList<Integer> attackerDice;
+    public ArrayList<Integer> attackerDice;
     CountryModel defenderCountry;
-    CountryModel attackerCountry;
+    public CountryModel attackerCountry;
     //To make sure attack move command only can run when this flag is true
     boolean ifAttackerWin=false;
     boolean gameStopFlag = false;
@@ -68,8 +68,11 @@ public class GameModel extends Observable {
                 System.out.println("Add "+playerName+" Failed, it's already exist");
             }else {
                 PlayerModel player= new PlayerModel(playerName);
-                if (!setPlayerStrategy(player, strategy))
+                //if the Strategy not exist
+                if (!setPlayerStrategy(player, strategy)){
+                    removePlayer(playerName);
                     return;
+                }
                 playerList.add(player);
                 System.out.println("Add "+playerName+" Succeed");
             }
@@ -90,7 +93,7 @@ public class GameModel extends Observable {
                 player.setStrategy(strategy);
                 break;
             case "Aggressive":
-                strategy = new AggressiveStrategy(player);
+                strategy = new AggressiveStrategy(player,this);
                 player.setStrategy(strategy);
                 break;
             case "Benevolent":
@@ -293,17 +296,13 @@ public class GameModel extends Observable {
         }
 
         if (phase.equals("Attack") && gameStopFlag == false) {
-            System.out.println(getCurrentPlayer().getPlayerName()+ "Start to Attack");
-//            if (getCurrentPlayer().getStrategy().attack()) {
-////                String winner = getCurPlayerNameWithColor();
-////                log.add("===== " + winner + " : winned ======");
-//                return;
-//            }
+            System.out.println(getCurrentPlayer().getPlayerName()+ " Start to Attack");
+            getCurrentPlayer().getStrategy().attack();
             setPhase("Fortification");
         }
 
         if (phase.equals("Fortification") && gameStopFlag == false) {
-            getCurrentPlayer().getStrategy().reinforcement();
+            getCurrentPlayer().getStrategy().fortification();
             setPhase("Reinforcement");
         }
 
@@ -311,10 +310,10 @@ public class GameModel extends Observable {
 
 
     public void gameStart() {
-        if (getCurrentPlayer().getStrategy().getName().equals("Human")) {
-            singleAutoPlay();
-        } else {
+        if (getCurrentPlayer().getStrategy().getName().equals("human")) {
             return;
+        } else {
+            singleAutoPlay();
         }
     }
     /**
@@ -370,6 +369,7 @@ public class GameModel extends Observable {
             setCurrentPlayer(playerList.get(currentPlayerNum));
             System.out.println("Current player is "+currentPlayer.getPlayerName());
             startReinforcement();
+            gameStart();
         } else if (countrySize==0) {
             System.out.println("Place all army failed! First add some countries.");
         } else if (numOfPlayers<2) {
@@ -514,9 +514,9 @@ public class GameModel extends Observable {
     }
 
 
-    public boolean ifCountriesBelongPlayer(ArrayList<Integer> countryList) {
-        for (int countryValue:countryList) {
-            if (!currentPlayer.equals(mapModel.getCountryList().get(countryValue).getOwner())){
+    public boolean ifCountriesBelongPlayer(ArrayList<CountryModel> countryList) {
+        for (CountryModel country:countryList) {
+            if (!currentPlayer.equals(country.getOwner())){
                 return false;
             }
         }
@@ -550,7 +550,7 @@ public class GameModel extends Observable {
                 return false;
             }
             //check if defend country is an adjacent country
-            if (!attackCountry.getNeighbours().contains(defendCountry.getCountryValue())){
+            if (!attackCountry.getNeighbours().contains(defendCountry)){
                 System.out.println("The defend Country is not an adjacent country to the attacker!");
                 return false;
             }
@@ -720,7 +720,7 @@ public class GameModel extends Observable {
         }
         defenderCountry.addArmyNum(num);
         attackerCountry.reduceArmyNum(num);
-        System.out.println("Moved the Armies to conquered Country");
+        System.out.println("Moved the "+ num +" Armies to conquered Country");
         if (!checkAttackChance())
             stopAttack();
         ifAttackerWin=false;
@@ -808,15 +808,15 @@ public class GameModel extends Observable {
      */
 
     public boolean existPath (CountryModel country1, CountryModel country2, ArrayList<Boolean> visited) {
-        ArrayList<Integer> neighbours = country1.getNeighbours();
-        for (Integer neighbour : neighbours) {
-            if (visited.get(neighbour)) {
+        ArrayList<CountryModel> neighbours = country1.getNeighbours();
+        for (CountryModel neighbour : neighbours) {
+            if (visited.get(neighbour.getCountryValue())) {
                 continue;
             }
-            visited.set(neighbour, true);
-            CountryModel neighbourCountryModel = mapModel.getCountryList().get(neighbour);
+            visited.set(neighbour.getCountryValue(), true);
+            CountryModel neighbourCountryModel = neighbour;
             if (neighbourCountryModel.getOwner().getPlayerName().equals(country1.getOwner().getPlayerName())) {
-                if (neighbour == country2.getCountryValue()) {
+                if (neighbour.getCountryValue() == country2.getCountryValue()) {
                     return true;
                 }
                 boolean b = existPath(neighbourCountryModel, country2, visited);
@@ -860,6 +860,7 @@ public class GameModel extends Observable {
 
         setCurrentPlayer(this.playerList.get(this.currentPlayerNum));
         startReinforcement();
+        gameStart();
 
     }
 
@@ -925,14 +926,14 @@ public class GameModel extends Observable {
                         "Neighbor Country List: ");
 
         for (int i = 0; i < country.getNeighbours().size(); i++){
-            int neighbourValue= country.getNeighbours().get(i);
+            CountryModel neighbour = country.getNeighbours().get(i);
             if (i==0)
                 System.out.print("[");
             if (i==country.getNeighbours().size()-1){
-                System.out.println(mapModel.getCountryList().get(mapModel.indexOfCountry(neighbourValue)).getCountryName()+"]\n");
+                System.out.println(neighbour.getCountryName()+"]\n");
                 break;
             }
-            System.out.print(mapModel.getCountryList().get(mapModel.indexOfCountry(neighbourValue)).getCountryName()+", ");
+            System.out.print(neighbour.getCountryName()+", ");
         }
 
     }
@@ -988,5 +989,17 @@ public class GameModel extends Observable {
 
     public ArrayList<PlayerModel> getPlayerList() {
         return playerList;
+    }
+
+    public boolean isIfAttackerWin() {
+        return ifAttackerWin;
+    }
+
+    public boolean isGameStopFlag() {
+        return gameStopFlag;
+    }
+
+    public boolean isHasPlayerConquered() {
+        return hasPlayerConquered;
     }
 }
