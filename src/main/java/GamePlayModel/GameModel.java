@@ -36,6 +36,7 @@ public class GameModel extends Observable {
 //    boolean ifAttackAllOut=false;
     //To check if the current player can get a card
     boolean hasPlayerConquered=false;
+    int NumofTurns = 0;
 
 
     public GameModel() {
@@ -97,7 +98,7 @@ public class GameModel extends Observable {
                 player.setStrategy(strategy);
                 break;
             case "Benevolent":
-                strategy = new BenevolentStrategy(player);
+                strategy = new BenevolentStrategy(player,this);
                 player.setStrategy(strategy);
                 break;
             case "Random":
@@ -303,7 +304,6 @@ public class GameModel extends Observable {
 
         if (phase.equals("Fortification") && gameStopFlag == false) {
             getCurrentPlayer().getStrategy().fortification();
-            setPhase("Reinforcement");
         }
 
     }

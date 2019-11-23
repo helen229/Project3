@@ -45,6 +45,7 @@ public class AggressiveStrategy implements Strategy {
             if (!neighbour.getOwner().equals(country.getOwner()))
                 attackableNeighbours.add(neighbour);
         }
+        //sort it to make sure the weakest country is attacked first
         Collections.sort(attackableNeighbours, new Comparator<CountryModel>() {
             @Override
             public int compare(CountryModel o1, CountryModel o2) {
@@ -68,10 +69,15 @@ public class AggressiveStrategy implements Strategy {
             player.setNumReinforceArmyRemainPlace(0);
             player.setTotalNumReinforceArmy(0);
             player.addArmyNum(armyLeft);
+            destination.addArmyNum(armyLeft);
             System.out.println("Place Reinforcement Army Succeed! "+ player.getPlayerName()
                     + " added all the armies to " + destination.getCountryName());
+            System.out.println(destination.getCountryName()+" has "+destination.getArmyNum() +" armies");
+
+            if (player.getCardList().size()>=5) {
+                gameModel.exchangeCards(0,1,2);
+            }
         }else{
-            //all countries in a continent could be happen that makes the destination is null
             System.out.println("Assign to a random country since there are no country attackable");
         }
     }
@@ -113,40 +119,10 @@ public class AggressiveStrategy implements Strategy {
                 }
             }
 
+        }else
+        {
+            System.out.println("NO Attack");
         }
-//        System.out.println(player.getName() + " enter the attack phase");
-//        System.out.println(" ");
-//
-//        // attacker is the strongest country
-//        Country strongest = player.getCountriesOwned().stream()
-//                .max(Comparator.comparingLong(Country::getArmies))
-//                .get();
-//
-//        List<Country> enemies = strongest.getAdjCountries().stream()
-//                .filter(c -> !c.getOwner().equals(player))
-//                .collect(Collectors.toList());
-//
-//        for (Country enemy : enemies) {
-//            if (strongest.getArmies() >= 2) {
-//                player.allOut(strongest, enemy);
-//
-//                if (Phase.getInstance().getActionResult() == Action.Win) {
-//                    Phase.getInstance().update();
-//                    player.addRandomCard();
-//                    return;
-//                }
-//
-//                if (Phase.getInstance().getActionResult() == Action.Move_After_Conquer) {
-//                    moveArmy(String.valueOf(player.getAttackerDiceNum()));
-//                }
-//            }
-//        }
-//
-//        player.addRandomCard();
-//        Phase.getInstance().update();
-//        Tool.printBasicInfo(player,"After attack: ");
-
-//        sleep(500);
     }
 
 
@@ -156,7 +132,8 @@ public class AggressiveStrategy implements Strategy {
      */
     @Override
     public void fortification() {
-
+//        gameModel.showMap();
+//        gameModel.fortifyNone();
         CountryModel targetCountry = getStrongestCountry(player.getPlayerCountries());
         CountryModel sourceCountry = null;
         ArrayList<CountryModel> candidateList = new ArrayList<>();
@@ -172,9 +149,9 @@ public class AggressiveStrategy implements Strategy {
             visitedCountryList.add(false);
         }
 
-        if (targetCountry != null) {
+        if (targetCountry != null && sourceCountry != null) {
             for (CountryModel country : candidateList) {
-                if (country.getArmyNum()>max && gameModel.existPath(country, targetCountry, visitedCountryList)){
+                if (country.getArmyNum()>max ){
                     max = country.getArmyNum();
                     sourceCountry = country;
                 }
@@ -183,41 +160,7 @@ public class AggressiveStrategy implements Strategy {
         }else{
             gameModel.fortifyNone();
         }
-//        System.out.println(player.getName() + " enter the fortification phase");
-//        System.out.println(" ");
-//        List<Country> decreaseSorted = player.getCountriesOwned().stream()
-//                .sorted((c1, c2) -> {
-//                    if (c2.getArmies() - c1.getArmies() > 0 ) return 1;
-//                    else if (c2.getArmies() - c1.getArmies() == 0) return 0;
-//                    else return -1; })
-//                .collect(Collectors.toList());
-//
-//        for (int i = 0; i < decreaseSorted.size(); i++) {
-//            for (int j = 1; j < decreaseSorted.size(); j++) {
-//
-//                Country c1 = decreaseSorted.get(i);
-//                Country c2 = decreaseSorted.get(j);
-//
-//                if (player.isConnected(c1, c2)){
-//
-//                    System.out.println("From Country : "+c2.getName());
-//                    System.out.println("TO Country : "+c1.getName());
-//
-//                    // re-allocated armies
-//                    c1.setArmies(c1.getArmies() + c2.getArmies());
-//                    System.out.println("Move "+c2.getArmies() +" Armies");
-//                    c2.setArmies(0);
-//
-//                    Phase.getInstance().setActionResult(Action.Show_Next_Phase_Button);
-//                    Phase.getInstance().update();
-//
-//                    Tool.printBasicInfo(player,"After fortification: ");
-//                    return;
-//                }
-//            }
-//        }
-//
-//        Tool.printBasicInfo(player,"After fortification: ");
+
 //        sleep(500);
     }
 }
