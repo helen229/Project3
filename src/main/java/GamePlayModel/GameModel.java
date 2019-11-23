@@ -36,7 +36,7 @@ public class GameModel extends Observable {
 //    boolean ifAttackAllOut=false;
     //To check if the current player can get a card
     boolean hasPlayerConquered=false;
-    int NumofTurns = 0;
+    int NumofTurns = 1;
 
 
     public GameModel() {
@@ -320,7 +320,7 @@ public class GameModel extends Observable {
      * This method reinforce armies after checking the input.
      */
     public void startReinforcement() {
-        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getPlayerCountries().size()/3);
+        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getTotalNumReinforceArmy()+currentPlayer.getPlayerCountries().size()/3);
         currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getTotalNumReinforceArmy());
         System.out.println(currentPlayer.getPlayerName()+" You already place All your army! please start Reinforcement phase");
         this.setPhase("Reinforcement");
@@ -434,7 +434,7 @@ public class GameModel extends Observable {
                     (cardTwo>=0)&&(cardTwo<=currentPlayer.getCardList().size())&&
                     (cardThree>=0)&&(cardThree<=currentPlayer.getCardList().size())&&
                     (cardOne!=cardThree)&&(cardOne!=cardTwo)&&(cardTwo!=cardThree)){
-                currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getNumReinforceArmyRemainPlace()+currentExchangeTry*5);
+                currentPlayer.setTotalNumReinforceArmy(currentPlayer.getTotalNumReinforceArmy()+currentExchangeTry*5);
 
                 ArrayList<Card> cards = currentPlayer.getCardList();
 
@@ -468,7 +468,7 @@ public class GameModel extends Observable {
                 currentPlayer.removeCard(cards.get(firstCard));
 
                 System.out.println("You recived "+(currentExchangeTry*5)+" new Reinforcement armies.");
-                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getNumReinforceArmyRemainPlace()+" Reinforcement armies.");
+                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getTotalNumReinforceArmy()+" Reinforcement armies.");
                 currentExchangeTry++;
                 setChanged();
                 notifyObservers("CardsView");
@@ -848,6 +848,7 @@ public class GameModel extends Observable {
 
         if (this.currentPlayerNum+1==this.playerList.size()){
             this.currentPlayerNum = 0;
+            NumofTurns++;
         }else
             this.currentPlayerNum++;
 
@@ -860,6 +861,7 @@ public class GameModel extends Observable {
 
         setCurrentPlayer(this.playerList.get(this.currentPlayerNum));
         startReinforcement();
+        System.out.println("Current is in " +NumofTurns+" Turns");
         gameStart();
 
     }

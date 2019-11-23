@@ -36,23 +36,6 @@ public class BenevolentStrategy implements Strategy{
     public String getName() {
         return name;
     }
-
-    public ArrayList<CountryModel> getAttackableNeighbours(CountryModel country) {
-        ArrayList<CountryModel> neighbours = country.getNeighbours();
-        ArrayList<CountryModel> attackableNeighbours = new ArrayList<CountryModel>();
-        for (CountryModel neighbour: neighbours) {
-            if (!neighbour.getOwner().equals(country.getOwner()))
-                attackableNeighbours.add(neighbour);
-        }
-        //sort it to make sure the weakest country is attacked first
-        Collections.sort(attackableNeighbours, new Comparator<CountryModel>() {
-            @Override
-            public int compare(CountryModel o1, CountryModel o2) {
-                return (o1.getArmyNum()>=o2.getArmyNum())?(o1.getArmyNum()>o2.getArmyNum()?1:0):-1;
-            }
-        });
-        return attackableNeighbours;
-    }
     /**
      * Reinforcement method
      * reinforces its strongest country
@@ -61,37 +44,39 @@ public class BenevolentStrategy implements Strategy{
     public void reinforcement() {
 
         CountryModel destination = null;
-        destination = getStrongestCountry(player.getPlayerCountries());
+        destination = getWeakestCountry(player.getPlayerCountries());
 
         if (destination != null) {
             int armyLeft = player.getNumReinforceArmyRemainPlace();
             player.setNumReinforceArmyRemainPlace(0);
             player.setTotalNumReinforceArmy(0);
             player.addArmyNum(armyLeft);
+            destination.addArmyNum(armyLeft);
             System.out.println("Place Reinforcement Army Succeed! "+ player.getPlayerName()
                     + " added all the armies to " + destination.getCountryName());
+            System.out.println(destination.getCountryName()+" has "+destination.getArmyNum() +" armies");
+
+            if (player.getCardList().size()>=5) {
+                gameModel.exchangeCards(0,1,2);
+            }
         }else{
-            //all countries in a continent could be happen that makes the destination is null
             System.out.println("Assign to a random country since there are no country attackable");
         }
     }
 
 
-    public CountryModel getStrongestCountry(ArrayList<CountryModel> countryList) {
-        CountryModel strongestCountry = null;
-        int max = 0;
+    public CountryModel getWeakestCountry(ArrayList<CountryModel> countryList) {
+        CountryModel weakestCountry = null;
+        int min = 1000000;
         for (CountryModel country: countryList) {
 
-            if (getAttackableNeighbours(country).isEmpty()){
-                continue;
-            }
-            if(max<country.getArmyNum()){
-                max = country.getArmyNum();
-                strongestCountry = country;
+            if(min > country.getArmyNum()){
+                min = country.getArmyNum();
+                weakestCountry = country;
             }
 
         }
-        return strongestCountry;
+        return weakestCountry;
     }
     /**
      * Attack method
@@ -109,34 +94,34 @@ public class BenevolentStrategy implements Strategy{
      */
     @Override
     public void fortification() {
-        gameModel.fortifyNone();
-//        CountryModel targetCountry = getStrongestCountry(player.getPlayerCountries());
-//        CountryModel sourceCountry = null;
-//        ArrayList<CountryModel> candidateList = new ArrayList<>();
-//        for (CountryModel country: player.getPlayerCountries()) {
-//            candidateList.add(country);
-//        }
-//        candidateList.remove(targetCountry);
-//
-//        int max = 0;
-//
-//        ArrayList<Boolean> visitedCountryList=new ArrayList<>();
-//        for (int i = 0; i < gameModel.getMapModel().getCountryList().size(); i++) {
-//            visitedCountryList.add(false);
-//        }
-//
-//        if (targetCountry != null && sourceCountry != null) {
-//            for (CountryModel country : candidateList) {
-//                if (country.getArmyNum()>max){
-//                    max = country.getArmyNum();
-//                    sourceCountry = country;
-//                }
-//            }
-//            gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),sourceCountry.getArmyNum()-1);
-//        }else{
-//            gameModel.fortifyNone();
-//        }
 
-//        sleep(500);
+        CountryModel targetCountry = getWeakestCountry(player.getPlayerCountries());
+        CountryModel sourceCountry = null;
+        ArrayList<CountryModel> candidateList = new ArrayList<>();
+        for (CountryModel country: player.getPlayerCountries()) {
+            candidateList.add(country);
+        }
+        candidateList.remove(targetCountry);
+
+        int max = 1;
+
+        if (targetCountry != null) {
+            for (CountryModel country : candidateList) {
+                ArrayList<Boolean> visitedCountryList=new ArrayList<>();
+                for (int i = 0; i < gameModel.getMapModel().getCountryList().size(); i++) {
+                    visitedCountryList.add(false);
+                }
+                if (country.getArmyNum()>max && gameModel.existPath(country, targetCountry,visitedCountryList)){
+                    max = country.getArmyNum();
+                    sourceCountry = country;
+                }
+            }
+            if (sourceCountry != null)
+                gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),sourceCountry.getArmyNum()-1);
+            else
+                gameModel.fortifyNone();
+        }else{
+            gameModel.fortifyNone();
+        }
     }
 }

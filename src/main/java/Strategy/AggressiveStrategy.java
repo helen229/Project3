@@ -132,8 +132,7 @@ public class AggressiveStrategy implements Strategy {
      */
     @Override
     public void fortification() {
-//        gameModel.showMap();
-//        gameModel.fortifyNone();
+
         CountryModel targetCountry = getStrongestCountry(player.getPlayerCountries());
         CountryModel sourceCountry = null;
         ArrayList<CountryModel> candidateList = new ArrayList<>();
@@ -142,25 +141,26 @@ public class AggressiveStrategy implements Strategy {
         }
         candidateList.remove(targetCountry);
 
-        int max = 0;
+        int max = 1;
 
-        ArrayList<Boolean> visitedCountryList=new ArrayList<>();
-        for (int i = 0; i < gameModel.getMapModel().getCountryList().size(); i++) {
-            visitedCountryList.add(false);
-        }
-
-        if (targetCountry != null && sourceCountry != null) {
+        if (targetCountry != null) {
             for (CountryModel country : candidateList) {
-                if (country.getArmyNum()>max ){
+                ArrayList<Boolean> visitedCountryList=new ArrayList<>();
+                for (int i = 0; i < gameModel.getMapModel().getCountryList().size(); i++) {
+                    visitedCountryList.add(false);
+                }
+                if (country.getArmyNum()>max && gameModel.existPath(country, targetCountry,visitedCountryList)){
                     max = country.getArmyNum();
                     sourceCountry = country;
                 }
             }
-            gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),sourceCountry.getArmyNum()-1);
+            if (sourceCountry != null)
+                gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),sourceCountry.getArmyNum()-1);
+            else
+                gameModel.fortifyNone();
         }else{
             gameModel.fortifyNone();
         }
 
-//        sleep(500);
     }
 }
