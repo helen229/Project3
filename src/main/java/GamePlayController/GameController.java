@@ -1,6 +1,9 @@
 package GamePlayController;
 
-import GamePlayModel.GameModel; 
+import GamePlayModel.GameModel;
+
+import java.util.ArrayList;
+
 /**
  * This class handles commands that are require while playing the game.
  */
@@ -29,7 +32,6 @@ public class GameController {
             showMap(phase);
             return;
         }
-
         try
         {
             if (phase.equals("Startup")){
@@ -50,6 +52,9 @@ public class GameController {
                         break;
                     case "placeall":
                         game.placeAllAmy();
+                        break;
+                    case "tournament":
+                        parseTournamentOption(args);
                         break;
                     default:
                         System.out.println("Invalid Command for startup phase");
@@ -143,6 +148,52 @@ public class GameController {
         }else {
             System.out.println("Invalid Command");
         }
+    }
+
+    private void parseTournamentOption(String[] args) {
+
+        ArrayList<String> mapList = new ArrayList<String>();
+        ArrayList<String> playerList = new ArrayList<String>();
+        int numberOfGames = 0;
+        int maxNumberOfTurns = 0;
+        boolean mapFlag = false;
+        boolean playerFlag = false;
+        for (int i = 0; i < args.length; i++) {
+
+            if (args[i].equals("-M")){
+                mapFlag = true;
+                continue;
+            }
+            else if (args[i].equals("-P")){
+                playerFlag = true;
+                mapFlag = false;
+                continue;
+            }
+            else if (args[i].equals("-G")){
+                playerFlag = false;
+                numberOfGames = Integer.parseInt(args[i+1]);
+                continue;
+            }
+            else if (args[i].equals("-D")){
+                maxNumberOfTurns = Integer.parseInt(args[i+1]);
+                continue;
+            }
+
+            if (mapFlag){
+                mapList.add(args[i]);
+            }
+            if (playerFlag){
+                playerList.add(args[i]);
+            }
+
+        }
+
+        //TODO: add the validation for those four variable
+        // choosing M = 1 to 5 different maps, P = 2 to 4 different computer players strategies,
+        // G = 1 to 5 games to be played on each map, D = 10 to 50 maximum number of turns for each game.
+
+        game.tournament(mapList, playerList, numberOfGames, maxNumberOfTurns);
+
     }
 
     /**

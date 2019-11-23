@@ -86,6 +86,8 @@ public class RiskGame {
                             String args = action+" "+ countrys[0] + countrys[1]+ commandArg;
                             gameController.commandHandler(args.split(" "),  gameController.getGame().getPhase());
                         }
+                    }else if(action.equals("tournament")){
+                        gameController.commandHandler(command.split(" "),  gameController.getGame().getPhase());
                     }else {
                         String[] option = options.split("-");
                         for (String commandArg:option) {

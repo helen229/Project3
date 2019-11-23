@@ -13,12 +13,12 @@ import java.util.Observable;
 import java.util.Random;
 
 import static java.lang.System.exit;
+import static java.lang.System.setOut;
 
 /**
  * This class defines the characteristics of the a Game in a particular phase
  */
 public class GameModel extends Observable {
-
 
     MapModel mapModel;
     ArrayList<PlayerModel> playerList;
@@ -37,7 +37,12 @@ public class GameModel extends Observable {
     //To check if the current player can get a card
     boolean hasPlayerConquered=false;
     int NumofTurns = 1;
-
+    int maxNumberOfTurns = 0;
+    String gameMode = "Single";
+    boolean gameEnd = false;
+    String gameWinner = "";
+    public  ArrayList<ArrayList<String>> tournamentResult;
+    public  ArrayList<String> tournamentMaps;
 
     public GameModel() {
         this.mapModel = new MapModel();
@@ -45,6 +50,8 @@ public class GameModel extends Observable {
         this.attackerDice = new ArrayList<>();
         this.currentPlayerNum=0;
         this.currentExchangeTry=1;
+        this.tournamentResult = new ArrayList<>();
+        this.tournamentMaps = new ArrayList<>();
         defenderCountry = null;
         attackerCountry = null;
     }
@@ -380,6 +387,42 @@ public class GameModel extends Observable {
             System.out.println("Place all army failed! First populate countries.");
         }
     }
+
+    public void tournament(ArrayList<String> mapList, ArrayList<String> playerStrategyList, int numberOfGames, int maxNumberOfTurns) {
+
+        setGameMode("Tournament");
+        setMaxNumberOfTurns(maxNumberOfTurns);
+        this.tournamentMaps = mapList;
+        for (String map: mapList) {
+            ArrayList<String> gameResultList = new ArrayList<String>();
+            int gameNum = numberOfGames;
+            while(gameNum>0){
+                loadMap(map);
+                for (int i = 0; i< playerStrategyList.size(); i++) {
+                    addPlayer("Player"+i, playerStrategyList.get(i));
+                }
+                populateCountries();
+                placeAllAmy();
+                gameResultList.add(gameWinner);
+                gameNum--;
+                for (int i = 0; i< playerStrategyList.size(); i++) {
+                    removePlayer("Player"+i);
+                }
+                mapModel = new MapModel();
+                NumofTurns = 1;
+                gameEnd = false;
+                System.out.println("****************************************");
+                System.out.println("****************************************");
+                System.out.println("****************************************");
+                System.out.println("****************************************");
+
+            }
+            this.tournamentResult.add(gameResultList);
+        }
+        System.out.println(this.tournamentResult);
+        printTournmentResult();
+    }
+
     /**
      * This method allows a player to reinforce
      */
@@ -663,6 +706,8 @@ public class GameModel extends Observable {
         }
 
         if (ifAttackerWin){
+            if(gameEnd)
+                return;
             //if attacker wins, set to true and start the attackmove
             System.out.println("Attacker take over the country! Please start move army!");
             hasPlayerConquered = true;
@@ -695,7 +740,14 @@ public class GameModel extends Observable {
             //check if the attacker owns all countries,if yes, then game finished.
             if (attacker.getPlayerCountries().size() == mapModel.getCountryList().size()) {
                 System.out.println("GAME END! " + attacker.getPlayerName()+ " WIN");
-                exit(0);
+                if (gameMode.equals("Single")){
+                    exit(0);
+                }else {
+                    this.gameEnd = true;
+                    gameWinner = attacker.getPlayerName();
+                    System.out.println("---------------------------------------GAME END");
+                    return attackerWin;
+                }
             }
         }
         if (attackerCountry.getArmyNum() == 1){
@@ -835,6 +887,9 @@ public class GameModel extends Observable {
      */
     public void fortifyNone() {
 
+        if (gameEnd)
+            return;
+
         if (hasPlayerConquered){
             System.out.println(getCurrentPlayer().getPlayerName()+" You have conquered at least one country!");
             Card card = new Card(currentPlayer);
@@ -849,6 +904,11 @@ public class GameModel extends Observable {
         if (this.currentPlayerNum+1==this.playerList.size()){
             this.currentPlayerNum = 0;
             NumofTurns++;
+            if (NumofTurns >= maxNumberOfTurns){
+                gameWinner = "Draw";
+                System.out.println("DRAW!!!!!!");
+                return;
+            }
         }else
             this.currentPlayerNum++;
 
@@ -940,6 +1000,13 @@ public class GameModel extends Observable {
 
     }
 
+
+    private void printTournmentResult(){
+//        this.tournamentMaps;
+//        this.tournamentResult;
+       //TODO: Add the result table;
+    }
+
     /**
      * This method sets the Current Exchange Try number
      */
@@ -983,6 +1050,14 @@ public class GameModel extends Observable {
         this.phase = phase;
         setChanged();
         notifyObservers("PhaseView");
+    }
+
+    public void setMaxNumberOfTurns(int maxNumberOfTurns) {
+        this.maxNumberOfTurns = maxNumberOfTurns;
+    }
+
+    public void setGameMode(String gameMode) {
+        this.gameMode = gameMode;
     }
 
     public MapModel getMapModel() {
