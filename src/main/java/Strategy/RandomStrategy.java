@@ -41,13 +41,6 @@ public class RandomStrategy implements Strategy{
             if (!neighbour.getOwner().equals(country.getOwner()))
                 attackableNeighbours.add(neighbour);
         }
-        //sort it to make sure the weakest country is attacked first
-        Collections.sort(attackableNeighbours, new Comparator<CountryModel>() {
-            @Override
-            public int compare(CountryModel o1, CountryModel o2) {
-                return (o1.getArmyNum()>=o2.getArmyNum())?(o1.getArmyNum()>o2.getArmyNum()?1:0):-1;
-            }
-        });
         return attackableNeighbours;
     }
 
@@ -95,10 +88,9 @@ public class RandomStrategy implements Strategy{
         int numberOfAttack=0;
         ArrayList<CountryModel> playerCountries=player.getPlayerCountries();
         CountryModel destination = null;
-        do {
             selectedAttackCountry=(int)(Math.random() * (playerCountries.size()));
             
-        } while (getAttackableNeighbours(playerCountries.get(selectedAttackCountry)).size()>0);
+        if (getAttackableNeighbours(playerCountries.get(selectedAttackCountry)).size()!=0){
         if (playerCountries.get(selectedAttackCountry).getArmyNum()>2){
         System.out.println(playerCountries.get(selectedAttackCountry).getCountryName()+" is Randomly selected as the attacker country of the "+player.getPlayerName());
         }
@@ -115,7 +107,9 @@ public class RandomStrategy implements Strategy{
                 if (gameModel.isIfAttackerWin()){
                     gameModel.winnerMove(gameModel.attackerDice.size());
                 }
-            
+        } else {
+            System.out.println("NO Attack");
+        }    
         
     }
 
@@ -127,6 +121,25 @@ public class RandomStrategy implements Strategy{
      */
     @Override
     public void fortification() {
+        //gameModel.fortifyNone();
+        CountryModel targetCountry = null;
+        CountryModel sourceCountry = null;
+        int targetCountryValue=0;
+        int sourceCountryValue=0;
+        int fortificationArmyNum=0;
+        ArrayList<CountryModel> playerCountries=player.getPlayerCountries();
+        if (playerCountries.size()>1) {
+            do {
+                sourceCountryValue=(int)(Math.random() * (playerCountries.size()));       
+                targetCountryValue=(int)(Math.random() * (playerCountries.size()));
+            }while (sourceCountryValue==targetCountryValue);
 
+            sourceCountry=playerCountries.get(sourceCountryValue);
+            targetCountry=playerCountries.get(targetCountryValue);
+            fortificationArmyNum=(int)(Math.random() * (sourceCountry.getArmyNum()-1));
+            gameModel.fortify(sourceCountry.getCountryName(),targetCountry.getCountryName(),fortificationArmyNum);
+        } else {
+            gameModel.fortifyNone();
+        }
     }
 }
