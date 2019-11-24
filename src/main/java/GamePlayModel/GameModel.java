@@ -109,7 +109,7 @@ public class GameModel extends Observable {
                 player.setStrategy(strategy);
                 break;
             case "Random":
-                strategy = new RandomStrategy(player);
+                strategy = new RandomStrategy(player, this);
                 player.setStrategy(strategy);
                 break;
             case "Human":
