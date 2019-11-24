@@ -208,4 +208,25 @@ public class PlayerModel {
         this.strategy = strategy;
     }
 
+    @Override
+    public String toString() {
+        String res=  "--Player: "+this.PlayerName+" "+this.totalNumArmy+" "+this.numArmyRemainPlace+" "
+                +this.totalNumReinforceArmy+" "+this.NumReinforceArmyRemainPlace+" "+
+                this.strategy.getName();
+
+        res = res+"\n-CountryList ";
+        for (CountryModel country: playerCountries) {
+            res = res+country.getCountryName()+" ";
+        }
+        res = res+"\n-ContinentList ";
+        for (ContinentModel continent: playerContinents) {
+            res = res+continent.getContinentName()+" ";
+        }
+        res = res+"\n-CardList ";
+        for (Card card: cardList) {
+            res = res+card.getCardTypeName()+" ";
+        }
+        return res;
+    }
+
 }

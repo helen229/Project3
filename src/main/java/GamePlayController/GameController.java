@@ -32,6 +32,14 @@ public class GameController {
             showMap(phase);
             return;
         }
+        if (args[0].equals("savegame")){
+            game.saveGame("");
+            return;
+        }
+        if (args[0].equals("loadgame")){
+            game.loadGame("");
+            return;
+        }
         try
         {
             if (phase.equals("Startup")){

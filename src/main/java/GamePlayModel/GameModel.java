@@ -240,6 +240,7 @@ public class GameModel extends Observable {
         }
         if (mapModel.isValid()){
             System.out.println("Load Map Succeed");
+            mapModel.setMapName(fileName);
         }else {
             /** not validate so clear all the content */
             mapModel.getCountryList().clear();
@@ -941,6 +942,36 @@ public class GameModel extends Observable {
         for (int i = 0; i < mapModel.getCountryList().size(); i++){
             printCountry(mapModel.getCountryList().get(i));
         }
+    }
+
+    public void saveGame(String fileName){
+        System.out.println("--Map: "+mapModel.getMapName());
+        System.out.println();
+        System.out.println("--PlayerList: ");
+        for (PlayerModel player:this.playerList) {
+            System.out.println(player.toString());
+        }
+        System.out.println();
+        System.out.println("--PlayerCountryList: ");
+        for (CountryModel country:mapModel.getCountryList()) {
+            System.out.println(country.toString());
+        }
+
+    }
+
+
+    public void loadGame(String fileName){
+        System.out.println("--Map: "+mapModel.getMapName());
+        System.out.println();
+        for (PlayerModel player:this.playerList) {
+            System.out.println(player.toString());
+        }
+        System.out.println("--PlayerCountryList: ");
+        System.out.println();
+        for (CountryModel country:mapModel.getCountryList()) {
+            System.out.println(country.toString());
+        }
+
     }
 
     /**
