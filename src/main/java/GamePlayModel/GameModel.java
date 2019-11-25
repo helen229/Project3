@@ -905,7 +905,7 @@ public class GameModel extends Observable {
         if (this.currentPlayerNum+1==this.playerList.size()){
             this.currentPlayerNum = 0;
             NumofTurns++;
-            if (NumofTurns >= maxNumberOfTurns){
+            if ((NumofTurns >= maxNumberOfTurns)&&(gameMode.equals("Tournament"))){
                 gameWinner = "Draw";
                 System.out.println("DRAW!!!!!!");
                 return;
