@@ -97,12 +97,18 @@ public class RandomStrategy implements Strategy{
      */
     @Override
     public void reinforcement() {
+        player.setTotalNumReinforceArmy(player.getPlayerContinents().size()+(player.getPlayerCountries().size()/3));
+        if (player.getTotalNumReinforceArmy()<3) player.setTotalNumReinforceArmy(3);
+        player.setNumReinforceArmyRemainPlace(player.getTotalNumReinforceArmy());
+        if (player.getCardList().size()>=5) {
+            gameModel.exchangeCards(0,1,2);
+        } 
         int armyLeft=player.getNumReinforceArmyRemainPlace();
         int totalArmyLeft=armyLeft;
         ArrayList<CountryModel> playerCountries=player.getPlayerCountries();
         if (armyLeft>0) {
+            player.addArmyNum(armyLeft);
             while (armyLeft>0){
-                player.addArmyNum(armyLeft);
                 int selectedCountry=(int)(Math.random() * (playerCountries.size()));
                 int reinforcementNumber=(int)(Math.random() * (armyLeft));
                 if (reinforcementNumber==0) reinforcementNumber=armyLeft; //To finish faster
@@ -117,9 +123,6 @@ public class RandomStrategy implements Strategy{
             //System.out.println(player.getPlayerName()+" dosent have any countries or Reinforcement armies. Reinforcement skipped.");
         }
         System.out.println(player.getPlayerName()+" placed all Reinforcement armies successfully! ");
-        if (player.getCardList().size()>=5) {
-            gameModel.exchangeCards(0,1,2);
-        } 
     }
 
 
@@ -139,8 +142,8 @@ public class RandomStrategy implements Strategy{
         if (checkAttackChance()){
             do {
             selectedAttackCountry=(int)(Math.random() * playerCountries.size());
-            }while ((getAttackableNeighbours(playerCountries.get(selectedAttackCountry)).size()>0)&&
-                    (playerCountries.get(selectedAttackCountry).getArmyNum()>=2));
+            }while ((getAttackableNeighbours(playerCountries.get(selectedAttackCountry)).size()==0)||
+                    (playerCountries.get(selectedAttackCountry).getArmyNum()<2));
             
             attackCountry=playerCountries.get(selectedAttackCountry);
             System.out.println(attackCountry.getCountryName()+
@@ -205,18 +208,18 @@ public class RandomStrategy implements Strategy{
             ArrayList<CountryModel> sourceCountries = getFortificationCountries(playerCountries);
             if (sourceCountries.size()>=1){
                 sourceCountryValue=(int)(Math.random() * (sourceCountries.size()));
-                System.out.println(playerCountries.get(sourceCountryValue).getCountryName()+
+                System.out.println(sourceCountries.get(sourceCountryValue).getCountryName()+
                     " is Randomly selected as the fortification source country of the "+
                     player.getPlayerName());
-                targetCountries=getAllNeighboursBelongPlayer(playerCountries.get(sourceCountryValue));
+                targetCountries=getAllNeighboursBelongPlayer(sourceCountries.get(sourceCountryValue));
                 targetCountryValue=(int)(Math.random() * (targetCountries.size()));
-                System.out.println(playerCountries.get(targetCountryValue).getCountryName()+
+                System.out.println(targetCountries.get(targetCountryValue).getCountryName()+
                     " is Randomly selected as the fortification destination country of the "+
                     player.getPlayerName());
-                fortificationArmyNum=(int)(Math.random() * (playerCountries.get(sourceCountryValue).getArmyNum()-1));
+                fortificationArmyNum=(int)(Math.random() * (sourceCountries.get(sourceCountryValue).getArmyNum()-1));
                 System.out.println(fortificationArmyNum+
                     " is Randomly selected as the number of fortification artmy/armies.");
-                gameModel.fortify(playerCountries.get(sourceCountryValue).getCountryName(),playerCountries.get(targetCountryValue).getCountryName(),fortificationArmyNum);
+                gameModel.fortify(sourceCountries.get(sourceCountryValue).getCountryName(),targetCountries.get(targetCountryValue).getCountryName(),fortificationArmyNum);
             } else {
                 System.out.println("Fortification is not possible for of the "+
                     player.getPlayerName());

@@ -328,7 +328,8 @@ public class GameModel extends Observable {
      * This method reinforce armies after checking the input.
      */
     public void startReinforcement() {
-        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getTotalNumReinforceArmy()+currentPlayer.getPlayerCountries().size()/3);
+        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getPlayerContinents().size()+(currentPlayer.getPlayerCountries().size()/3));
+        if (currentPlayer.getTotalNumReinforceArmy()<3) currentPlayer.setTotalNumReinforceArmy(3);
         currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getTotalNumReinforceArmy());
         System.out.println(currentPlayer.getPlayerName()+" You already place All your army! please start Reinforcement phase");
         this.setPhase("Reinforcement");
@@ -387,6 +388,7 @@ public class GameModel extends Observable {
         } else {
             System.out.println("Place all army failed! First populate countries.");
         }
+        showMap();
     }
 
     public void tournament(ArrayList<String> mapList, ArrayList<String> playerStrategyList, int numberOfGames, int maxNumberOfTurns) {
@@ -478,7 +480,7 @@ public class GameModel extends Observable {
                     (cardTwo>=0)&&(cardTwo<=currentPlayer.getCardList().size())&&
                     (cardThree>=0)&&(cardThree<=currentPlayer.getCardList().size())&&
                     (cardOne!=cardThree)&&(cardOne!=cardTwo)&&(cardTwo!=cardThree)){
-                currentPlayer.setTotalNumReinforceArmy(currentPlayer.getTotalNumReinforceArmy()+currentExchangeTry*5);
+                currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getNumReinforceArmyRemainPlace()+(getCurrentExchangeTry()*5));
 
                 ArrayList<Card> cards = currentPlayer.getCardList();
 
@@ -511,9 +513,9 @@ public class GameModel extends Observable {
                 currentPlayer.removeCard(cards.get(secodnCard));
                 currentPlayer.removeCard(cards.get(firstCard));
 
-                System.out.println("You recived "+(currentExchangeTry*5)+" new Reinforcement armies.");
-                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getTotalNumReinforceArmy()+" Reinforcement armies.");
-                currentExchangeTry++;
+                System.out.println("You recived "+(getCurrentExchangeTry()*5)+" new Reinforcement armies.");
+                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getNumReinforceArmyRemainPlace()+" Reinforcement armies.");
+                setCurrentExchangeTry(getCurrentExchangeTry()+1);
                 setChanged();
                 notifyObservers("CardsView");
             }
@@ -916,6 +918,12 @@ public class GameModel extends Observable {
         while (this.playerList.get(this.currentPlayerNum).playerCountries.size()==0){
             if (this.currentPlayerNum+1==this.playerList.size()){
                 this.currentPlayerNum = 0;
+                NumofTurns++;
+                if ((NumofTurns >= maxNumberOfTurns)&&(gameMode.equals("Tournament"))){
+                    gameWinner = "Draw";
+                    System.out.println("DRAW!!!!!!");
+                    return;
+                }
             }else
                 this.currentPlayerNum++;
         }
