@@ -86,8 +86,10 @@ public class GameModel extends Observable {
             }
         } else if (getNumOfPlayers()>5){
             System.out.println("Add "+playerName+" Failed, the maximum number of players is 6.");
-        } else {
+        } else if (!isNotPopulated()) {
             System.out.println("Add "+playerName+" Failed, The map is already populated. There is no more unowned country.");
+        } else {
+            System.out.println("Add "+playerName+" Failed!");
         }
 
     }
@@ -97,7 +99,7 @@ public class GameModel extends Observable {
         boolean res = true;
         switch (strategyName) {
             case "Cheater":
-                strategy = new CheaterStrategy(player);
+                strategy = new CheaterStrategy(player,this);
                 player.setStrategy(strategy);
                 break;
             case "Aggressive":
@@ -207,8 +209,10 @@ public class GameModel extends Observable {
             System.out.println("Populate countries failed! First add some players.");
         } else if (numOfPlayers>6) {
             System.out.println("Populate countries failed! First remove some players.");
-        } else {
+        } else if (!isNotPopulated()) {
             System.out.println("Populate countries failed! The map has been populated before.");
+        } else {
+            System.out.println("Populate countries failed!");
         }
     }
 
@@ -351,7 +355,9 @@ public class GameModel extends Observable {
             setChanged();
             notifyObservers("DominView");
         } else {
+            if (!(getCurrentPlayer().getStrategy().getName().equals("cheater"))) {
             System.out.println(currentPlayer.getPlayerName() + " has " + currentPlayer.getNumReinforceArmyRemainPlace()+" reinforcement.");
+            }
         }
 
     }
@@ -388,7 +394,6 @@ public class GameModel extends Observable {
         } else {
             System.out.println("Place all army failed! First populate countries.");
         }
-        showMap();
     }
 
     public void tournament(ArrayList<String> mapList, ArrayList<String> playerStrategyList, int numberOfGames, int maxNumberOfTurns) {
@@ -1098,7 +1103,17 @@ public class GameModel extends Observable {
     public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
     }
-
+    public String getGameMode() {
+        return gameMode;
+    }
+    
+    public void setGameEnd(boolean gameEnd){
+        this.gameEnd = gameEnd;
+    }
+    
+    public void setGameWinner(String gameWinner) {
+        this.gameWinner=gameWinner;
+    }
     public MapModel getMapModel() {
         return mapModel;
     }

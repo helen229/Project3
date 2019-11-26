@@ -3,8 +3,6 @@ import GamePlayModel.GameModel;
 import GamePlayModel.PlayerModel;
 import MapEditorModel.CountryModel;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 /**
  * Random strategy class
  */
