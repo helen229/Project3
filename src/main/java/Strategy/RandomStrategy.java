@@ -158,7 +158,8 @@ public class RandomStrategy implements Strategy{
             numberOfAttack=(int)(Math.random() * (attackCountry.getArmyNum()-1));
             System.out.println("======= " +attackCountry.getCountryName() + " Attack starts for randomly "+numberOfAttack+" turns (or less).=========");
             if (numberOfAttack==0) {
-                System.out.println("Attack none.");
+                //System.out.println("Attack none.");
+                numberOfAttack=attackCountry.getArmyNum()-1; // To finish the game faster.
             }
             while (numberOfAttack>0){
                 numberOfAttack=numberOfAttack-1;
