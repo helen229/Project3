@@ -103,12 +103,12 @@ public class CheaterStrategy implements Strategy{
             playerCountries.add(country);
         }
         if (player.getPlayerCountries().size() == gameModel.getMapModel().getCountryList().size()) {
-                System.out.println("GAME END! " + player.getPlayerName()+ " WIN");
+                System.out.println("GAME END! " + player.getStrategy().getName()+ " WIN");
                 if (gameModel.getGameMode().equals("Single")){
                     exit(0);
                 }else {
                     gameModel.setGameEnd(true);
-                    gameModel.setGameWinner(player.getPlayerName()); 
+                    gameModel.setGameWinner(player.getStrategy().getName()); 
                     System.out.println("---------------------------------------GAME END");
                 }
             }

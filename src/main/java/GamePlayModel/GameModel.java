@@ -752,7 +752,7 @@ public class GameModel extends Observable {
                     exit(0);
                 }else {
                     this.gameEnd = true;
-                    gameWinner = attacker.getPlayerName();
+                    gameWinner = attacker.getStrategy().getName();
                     System.out.println("---------------------------------------GAME END");
                     return attackerWin;
                 }
