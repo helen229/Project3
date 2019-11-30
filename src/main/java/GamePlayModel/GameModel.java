@@ -1046,9 +1046,79 @@ public class GameModel extends Observable {
 
 
     private void printTournmentResult(){
-//        this.tournamentMaps;
-//        this.tournamentResult;
-       //TODO: Add the result table;
+        ArrayList<ArrayList<String>> tournamentResult= this.tournamentResult;
+        ArrayList<String> tournamentMaps=this.tournamentMaps;
+        int numberOfGames=tournamentResult.get(0).size();
+        int numberOfMaps=tournamentMaps.size();
+        String Format=" ";
+        switch(numberOfGames) {
+            case 1:
+                Format = "| %-4s%-1d | %-10s |%n";
+                System.out.format("+-------+------------+%n");
+                System.out.format("| Map # |   Game 1   |%n");
+                System.out.format("+-------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0));
+                }
+                System.out.format("+-------+------------+%n");
+                break;
+            case 2:
+                Format = "| %-4s%-1d | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |%n");
+                System.out.format("+-------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1));
+                }
+                System.out.format("+-------+------------+------------+%n");
+                break;
+            case 3:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |%n");
+                System.out.format("+-------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2));
+                }
+                System.out.format("+-------+------------+------------+------------+%n");
+                break;
+            case 4:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |   Game 4   |%n");
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map " , i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2),
+                            tournamentResult.get(i).get(3));
+                }
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                break;
+            case 5:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |   Game 4   |   Game 5   |%n");
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map " , i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2),
+                            tournamentResult.get(i).get(3),
+                            tournamentResult.get(i).get(4));
+                }
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                break;
+            default:
+        } 
     }
 
     /**
