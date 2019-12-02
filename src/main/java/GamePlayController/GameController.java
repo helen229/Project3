@@ -2,6 +2,7 @@ package GamePlayController;
 
 import GamePlayModel.GameModel;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 /**
@@ -14,7 +15,7 @@ public class GameController {
      * Constructor for game controller
      */
     public GameController(){
-        this.game = new GameModel();
+        this.game = new GameModel.Builder().currentExchangeTry(1).currentPlayerNum(0).build();
     }
 
 
@@ -26,18 +27,18 @@ public class GameController {
      * @param phase
      */
     public void
-    commandHandler(String[] args, String phase) {
+    commandHandler(String[] args, String phase) throws IOException {
 
         if (args[0].equals("showmap")){
             showMap(phase);
             return;
         }
         if (args[0].equals("savegame")){
-            game.saveGame("");
+            game.saveGame(args[1]);
             return;
         }
         if (args[0].equals("loadgame")){
-            game.loadGame("");
+            game.loadGame(args[1]);
             return;
         }
         try

@@ -14,7 +14,7 @@ public class HumanStrategy implements Strategy {
      * @param player player with this strategy
      */
     public HumanStrategy(PlayerModel player) {
-        name = "human";
+        name = "Human";
         this.player = player;
     }
 

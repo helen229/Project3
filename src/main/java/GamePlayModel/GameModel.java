@@ -6,6 +6,8 @@ import MapEditorModel.CountryModel;
 import MapEditorModel.MapModel;
 import Strategy.*;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,7 +15,6 @@ import java.util.Observable;
 import java.util.Random;
 
 import static java.lang.System.exit;
-import static java.lang.System.setOut;
 
 /**
  * This class defines the characteristics of the a Game in a particular phase
@@ -32,8 +33,6 @@ public class GameModel extends Observable {
     //To make sure attack move command only can run when this flag is true
     boolean ifAttackerWin=false;
     boolean gameStopFlag = false;
-    //    //To prevent attack declare in the allout mode
-//    boolean ifAttackAllOut=false;
     //To check if the current player can get a card
     boolean hasPlayerConquered=false;
     int NumofTurns = 1;
@@ -44,12 +43,14 @@ public class GameModel extends Observable {
     public  ArrayList<ArrayList<String>> tournamentResult;
     public  ArrayList<String> tournamentMaps;
 
-    public GameModel() {
+    public GameModel(Builder builder) {
         this.mapModel = new MapModel();
         this.playerList = new ArrayList<>();
         this.attackerDice = new ArrayList<>();
-        this.currentPlayerNum=0;
-        this.currentExchangeTry=1;
+//        this.currentPlayerNum=0;
+//        this.currentExchangeTry=1;
+        this.currentPlayerNum=builder.currentPlayerNum;
+        this.currentExchangeTry=builder.currentExchangeTry;
         this.tournamentResult = new ArrayList<>();
         this.tournamentMaps = new ArrayList<>();
         defenderCountry = null;
@@ -78,7 +79,6 @@ public class GameModel extends Observable {
                 PlayerModel player= new PlayerModel(playerName);
                 //if the Strategy not exist
                 if (!setPlayerStrategy(player, strategy)){
-                    removePlayer(playerName);
                     return;
                 }
                 playerList.add(player);
@@ -187,7 +187,7 @@ public class GameModel extends Observable {
                 else selectedOwner=1;
                 setCurrentPlayer(playerList.get(currentPlayerNum));
                 for (int i=0; i<numOfPlayers;i++) {
-                    playerList.get(i).setTotalNumArmy(this.playerList.size());
+                    playerList.get(i).distributeTotalNumArmy(this.playerList.size());
                     playerList.get(i).setNumArmyRemainPlace(playerList.get(i).getTotalNumArmy()-playerList.get(i).playerCountries.size());
                 }
                 System.out.println("Assigned initial armies (Number of players):"+ currentPlayer.getTotalNumArmy());
@@ -318,7 +318,7 @@ public class GameModel extends Observable {
 
 
     public void gameStart() {
-        if (getCurrentPlayer().getStrategy().getName().equals("human")) {
+        if (getCurrentPlayer().getStrategy().getName().equals("Human")) {
             return;
         } else {
             singleAutoPlay();
@@ -905,7 +905,7 @@ public class GameModel extends Observable {
         if (this.currentPlayerNum+1==this.playerList.size()){
             this.currentPlayerNum = 0;
             NumofTurns++;
-            if (NumofTurns >= maxNumberOfTurns){
+            if (NumofTurns >= maxNumberOfTurns&&gameMode.equals("Tournament")){
                 gameWinner = "Draw";
                 System.out.println("DRAW!!!!!!");
                 return;
@@ -944,34 +944,49 @@ public class GameModel extends Observable {
         }
     }
 
-    public void saveGame(String fileName){
-        System.out.println("--Map: "+mapModel.getMapName());
-        System.out.println();
-        System.out.println("--PlayerList: ");
-        for (PlayerModel player:this.playerList) {
-            System.out.println(player.toString());
-        }
-        System.out.println();
-        System.out.println("--PlayerCountryList: ");
-        for (CountryModel country:mapModel.getCountryList()) {
-            System.out.println(country.toString());
+
+    public void saveGame(String fileName) throws IOException {
+        File file = new File(fileName);
+
+        if (file.createNewFile())
+        {
+            System.out.println("File is created!");
+        } else {
+            System.out.println("File already exists.");
         }
 
+        //Write Content
+        FileWriter writer = new FileWriter(file);
+        String content = "\n";
+        content += "[Map]"+"\n";
+        content += mapModel.getMapName()+"\n";
+        content += "\n";
+        content += "[PlayerList]"+"\n";
+        for (PlayerModel player:this.playerList) {
+            content += player.toString()+"\n";
+        }
+        content += "\n";
+        content += "[CountryList]"+"\n";
+        for (CountryModel country:mapModel.getCountryList()) {
+            content += country.toString()+"\n";
+        }
+        content += "\n";
+        content += "[GameState]"+"\n";
+        content += "currentPlayer "+this.currentPlayer.getPlayerName()+"\n"+
+                "currentPlayerNum "+this.currentPlayerNum+"\n"+
+                "currentExchangeTry "+this.currentExchangeTry+"\n"+
+                "phase "+this.phase+"\n"+
+                "ifAttackerWin "+this.ifAttackerWin+"\n"+
+                "hasPlayerConquered "+this.hasPlayerConquered+"\n"+
+                "NumofTurns "+this.NumofTurns+"\n"+
+                "gameMode "+this.gameMode+"\n";
+        writer.write(content);
+        writer.close();
     }
 
-
-    public void loadGame(String fileName){
-        System.out.println("--Map: "+mapModel.getMapName());
-        System.out.println();
-        for (PlayerModel player:this.playerList) {
-            System.out.println(player.toString());
-        }
-        System.out.println("--PlayerCountryList: ");
-        System.out.println();
-        for (CountryModel country:mapModel.getCountryList()) {
-            System.out.println(country.toString());
-        }
-
+    public void loadGame(String fileName) throws IOException {
+        GameLoad gameLoad = new GameLoad(this);
+        gameLoad.Loading(fileName);
     }
 
     /**
@@ -1110,4 +1125,30 @@ public class GameModel extends Observable {
     public boolean isHasPlayerConquered() {
         return hasPlayerConquered;
     }
+
+    /**
+     * The builder class.
+     */
+    public static class Builder {
+
+        int currentPlayerNum;
+        int currentExchangeTry;
+
+        public Builder currentPlayerNum(int currentPlayerNum) {
+            this.currentPlayerNum = currentPlayerNum;
+            return this;
+        }
+
+        public Builder currentExchangeTry(int currentExchangeTry) {
+            this.currentExchangeTry = currentExchangeTry;
+            return this;
+        }
+
+        public GameModel build()
+        {
+            return new GameModel(this);
+        }
+    }
+
 }
+

@@ -142,6 +142,6 @@ public class CountryModel {
 
     @Override
     public String toString() {
-        return "-"+this.getCountryName()+" "+this.getArmyNum()+" "+this.getOwner().getPlayerName();
+        return this.getCountryName()+" "+this.getArmyNum()+" "+this.getOwner().getPlayerName();
     }
 }

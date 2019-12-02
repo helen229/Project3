@@ -44,7 +44,6 @@ public class EditMap {
         FileReader file = new FileReader(fileDirectory);
         BufferedReader br = new BufferedReader(file);
         String line = br.readLine();
-        String[] splitLine = line.split(" ");
         String checker = " ";
         MapModel mapModel= new MapModel();
         ArrayList<ContinentModel> continents=mapModel.getContinentList();
@@ -75,12 +74,6 @@ public class EditMap {
                             if (size > 0) {
                                 String[] continentData = line.split(" ");
                                 mapModel.addContinent(continentData[0], Integer.parseInt(continentData[1]));
-//                                ContinentModel c1 = new ContinentModel(continentData[0], Integer.parseInt(continentData[1]));
-//                                continents.add(c1);
-//                                CountryList = c1.getCountriesList();
-//                                for (String country : CountryList) {
-//                                    c1.addCountryToList(country);
-//                                }
 
                             } else {
                                 continue;

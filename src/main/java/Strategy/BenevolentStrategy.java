@@ -22,7 +22,7 @@ public class BenevolentStrategy implements Strategy{
      * @param player player with this strategy
      */
     public BenevolentStrategy(PlayerModel player, GameModel gameModel) {
-        name = "benevolent";
+        name = "Benevolent";
         this.player = player;
         this.gameModel = gameModel;
     }

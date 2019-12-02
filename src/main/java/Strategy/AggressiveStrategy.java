@@ -23,7 +23,7 @@ public class AggressiveStrategy implements Strategy {
      * @param player player with this strategy
      */
     public AggressiveStrategy(PlayerModel player, GameModel gameModel) {
-        name = "aggressive";
+        name = "Aggressive";
         this.player = player;
         this.gameModel = gameModel;
     }

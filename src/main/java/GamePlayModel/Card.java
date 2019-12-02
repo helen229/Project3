@@ -86,6 +86,23 @@ public class Card {
         }
     }
 
+    public Card(PlayerModel player, String CardTypeName) {
+        this.player = player;
+        switch (CardTypeName) {
+            case "Infantry":
+                cardType = CardType.Infantry;
+                break;
+            case "Cavalry":
+                cardType = CardType.Cavalry;
+                break;
+            case "Artillery":
+                cardType = CardType.Artillery;
+                break;
+            default:
+                break;
+        }
+    }
+
     @Override
     public String toString() {
         return cardType.name();

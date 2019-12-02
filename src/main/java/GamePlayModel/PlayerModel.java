@@ -100,8 +100,11 @@ public class PlayerModel {
      * This methos assigns armies to players based on their size.
      *
      */
+    public void setTotalNumArmy(int num) {
+        this.totalNumArmy = num;
+    }
 
-    public void setTotalNumArmy(int playerSize) {
+    public void distributeTotalNumArmy(int playerSize) {
         switch(playerSize){
             case 2:
                 this.totalNumArmy =40;
@@ -208,11 +211,14 @@ public class PlayerModel {
         this.strategy = strategy;
     }
 
+    public void addPlayerContinents(ContinentModel playerContinents) {
+        this.playerContinents.add(playerContinents);
+    }
+
     @Override
     public String toString() {
-        String res=  "--Player: "+this.PlayerName+" "+this.totalNumArmy+" "+this.numArmyRemainPlace+" "
-                +this.totalNumReinforceArmy+" "+this.NumReinforceArmyRemainPlace+" "+
-                this.strategy.getName();
+        String res=  "--Player"+" "+this.PlayerName+" "+ this.strategy.getName()+" "+this.totalNumArmy+" "+this.numArmyRemainPlace+" "
+                +this.totalNumReinforceArmy+" "+this.NumReinforceArmyRemainPlace;
 
         res = res+"\n-CountryList ";
         for (CountryModel country: playerCountries) {
