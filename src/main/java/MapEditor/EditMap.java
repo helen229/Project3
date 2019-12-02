@@ -5,6 +5,7 @@ import MapEditorModel.CountryModel;
 import MapEditorModel.MapModel;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -41,11 +42,14 @@ public class EditMap {
      * @throws IOException
      */
     public MapModel checkFile() throws IOException {
+        MapModel mapModel= new MapModel();
+        File checkExistence= new File(fileDirectory);
+        if(checkExistence.exists()){
         FileReader file = new FileReader(fileDirectory);
         BufferedReader br = new BufferedReader(file);
         String line = br.readLine();
         String checker = " ";
-        MapModel mapModel= new MapModel();
+        
         ArrayList<ContinentModel> continents=mapModel.getContinentList();
         ArrayList<CountryModel> countries=mapModel.getCountryList();
 
@@ -126,6 +130,10 @@ public class EditMap {
             System.out.println(" File is Empty");
         }
         file.close();
+        } else{
+           checkExistence.createNewFile();
+           System.out.println(" Map file "+fileDirectory + " does not exist , thus new Map File was created" );
+       }
         return mapModel;
     }
 
