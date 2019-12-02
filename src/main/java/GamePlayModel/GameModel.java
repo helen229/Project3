@@ -86,8 +86,10 @@ public class GameModel extends Observable {
             }
         } else if (getNumOfPlayers()>5){
             System.out.println("Add "+playerName+" Failed, the maximum number of players is 6.");
-        } else {
+        } else if (!isNotPopulated()) {
             System.out.println("Add "+playerName+" Failed, The map is already populated. There is no more unowned country.");
+        } else {
+            System.out.println("Add "+playerName+" Failed!");
         }
 
     }
@@ -97,7 +99,7 @@ public class GameModel extends Observable {
         boolean res = true;
         switch (strategyName) {
             case "Cheater":
-                strategy = new CheaterStrategy(player);
+                strategy = new CheaterStrategy(player,this);
                 player.setStrategy(strategy);
                 break;
             case "Aggressive":
@@ -207,8 +209,10 @@ public class GameModel extends Observable {
             System.out.println("Populate countries failed! First add some players.");
         } else if (numOfPlayers>6) {
             System.out.println("Populate countries failed! First remove some players.");
-        } else {
+        } else if (!isNotPopulated()) {
             System.out.println("Populate countries failed! The map has been populated before.");
+        } else {
+            System.out.println("Populate countries failed!");
         }
     }
 
@@ -328,7 +332,8 @@ public class GameModel extends Observable {
      * This method reinforce armies after checking the input.
      */
     public void startReinforcement() {
-        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getTotalNumReinforceArmy()+currentPlayer.getPlayerCountries().size()/3);
+        currentPlayer.setTotalNumReinforceArmy(currentPlayer.getPlayerContinents().size()+(currentPlayer.getPlayerCountries().size()/3));
+        if (currentPlayer.getTotalNumReinforceArmy()<3) currentPlayer.setTotalNumReinforceArmy(3);
         currentPlayer.setNumReinforceArmyRemainPlace(currentPlayer.getTotalNumReinforceArmy());
         System.out.println(currentPlayer.getPlayerName()+" You already place All your army! please start Reinforcement phase");
         this.setPhase("Reinforcement");
@@ -350,7 +355,9 @@ public class GameModel extends Observable {
             setChanged();
             notifyObservers("DominView");
         } else {
+            if (!(getCurrentPlayer().getStrategy().getName().equals("Cheater"))) {
             System.out.println(currentPlayer.getPlayerName() + " has " + currentPlayer.getNumReinforceArmyRemainPlace()+" reinforcement.");
+            }
         }
 
     }
@@ -511,9 +518,9 @@ public class GameModel extends Observable {
                 currentPlayer.removeCard(cards.get(secodnCard));
                 currentPlayer.removeCard(cards.get(firstCard));
 
-                System.out.println("You recived "+(currentExchangeTry*5)+" new Reinforcement armies.");
-                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getTotalNumReinforceArmy()+" Reinforcement armies.");
-                currentExchangeTry++;
+                System.out.println("You recived "+(getCurrentExchangeTry()*5)+" new Reinforcement armies.");
+                System.out.println(currentPlayer.getPlayerName() + " has now " + currentPlayer.getNumReinforceArmyRemainPlace()+" Reinforcement armies.");
+                setCurrentExchangeTry(getCurrentExchangeTry()+1);
                 setChanged();
                 notifyObservers("CardsView");
             }
@@ -745,7 +752,7 @@ public class GameModel extends Observable {
                     exit(0);
                 }else {
                     this.gameEnd = true;
-                    gameWinner = attacker.getPlayerName();
+                    gameWinner = attacker.getStrategy().getName();
                     System.out.println("---------------------------------------GAME END");
                     return attackerWin;
                 }
@@ -916,6 +923,12 @@ public class GameModel extends Observable {
         while (this.playerList.get(this.currentPlayerNum).playerCountries.size()==0){
             if (this.currentPlayerNum+1==this.playerList.size()){
                 this.currentPlayerNum = 0;
+                NumofTurns++;
+                if ((NumofTurns >= maxNumberOfTurns)&&(gameMode.equals("Tournament"))){
+                    gameWinner = "Draw";
+                    System.out.println("DRAW!!!!!!");
+                    return;
+                }
             }else
                 this.currentPlayerNum++;
         }
@@ -1048,9 +1061,79 @@ public class GameModel extends Observable {
 
 
     private void printTournmentResult(){
-//        this.tournamentMaps;
-//        this.tournamentResult;
-       //TODO: Add the result table;
+        ArrayList<ArrayList<String>> tournamentResult= this.tournamentResult;
+        ArrayList<String> tournamentMaps=this.tournamentMaps;
+        int numberOfGames=tournamentResult.get(0).size();
+        int numberOfMaps=tournamentMaps.size();
+        String Format=" ";
+        switch(numberOfGames) {
+            case 1:
+                Format = "| %-4s%-1d | %-10s |%n";
+                System.out.format("+-------+------------+%n");
+                System.out.format("| Map # |   Game 1   |%n");
+                System.out.format("+-------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0));
+                }
+                System.out.format("+-------+------------+%n");
+                break;
+            case 2:
+                Format = "| %-4s%-1d | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |%n");
+                System.out.format("+-------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1));
+                }
+                System.out.format("+-------+------------+------------+%n");
+                break;
+            case 3:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |%n");
+                System.out.format("+-------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map ", i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2));
+                }
+                System.out.format("+-------+------------+------------+------------+%n");
+                break;
+            case 4:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |   Game 4   |%n");
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map " , i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2),
+                            tournamentResult.get(i).get(3));
+                }
+                System.out.format("+-------+------------+------------+------------+------------+%n");
+                break;
+            case 5:
+                Format = "| %-4s%-1d | %-10s | %-10s | %-10s | %-10s | %-10s |%n";
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                System.out.format("| Map # |   Game 1   |   Game 2   |   Game 3   |   Game 4   |   Game 5   |%n");
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                for (int i = 0; i < numberOfMaps; i++) {
+                    System.out.format(Format, "Map " , i+1,
+                            tournamentResult.get(i).get(0),
+                            tournamentResult.get(i).get(1),
+                            tournamentResult.get(i).get(2),
+                            tournamentResult.get(i).get(3),
+                            tournamentResult.get(i).get(4));
+                }
+                System.out.format("+-------+------------+------------+------------+------------+------------+%n");
+                break;
+            default:
+        }
     }
 
     /**
@@ -1105,7 +1188,17 @@ public class GameModel extends Observable {
     public void setGameMode(String gameMode) {
         this.gameMode = gameMode;
     }
+    public String getGameMode() {
+        return gameMode;
+    }
 
+    public void setGameEnd(boolean gameEnd){
+        this.gameEnd = gameEnd;
+    }
+
+    public void setGameWinner(String gameWinner) {
+        this.gameWinner=gameWinner;
+    }
     public MapModel getMapModel() {
         return mapModel;
     }
