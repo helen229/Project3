@@ -87,7 +87,7 @@ public class GameModel extends Observable {
         } else if (getNumOfPlayers()>5){
             System.out.println("Add "+playerName+" Failed, the maximum number of players is 6.");
         } else if (!isNotPopulated()) {
-            System.out.println("Add "+playerName+" Failed, The map is already populated. There is no more unowned country.");
+            System.out.println("Add "+playerName+" Failed, There is no more unowned country.");
         } else {
             System.out.println("Add "+playerName+" Failed!");
         }
@@ -429,6 +429,7 @@ public class GameModel extends Observable {
         }
         System.out.println(this.tournamentResult);
         printTournmentResult();
+        exit(0);
     }
 
     /**
