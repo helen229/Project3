@@ -54,7 +54,7 @@ public class GameController {
                         game.populateCountries();
                         break;
                     case "gameplayer":
-                        parsePlayerOption(args[1],args[2],args[3]);
+                        parsePlayerOption(args);
                         break;
                     case "placearmy":
                         game.placeArmy(args[1]);
@@ -126,14 +126,13 @@ public class GameController {
 
     /**
      * This method allows players to add or remove players.
-     * @param operation
-     * @param playerName
      */
-    private void parsePlayerOption(String operation, String playerName, String playerStrategy) {
+    private void parsePlayerOption(String[] args) {
+        String operation = args[1];
         if (operation.equals("add")){
-            game.addPlayer(playerName,playerStrategy);
+            game.addPlayer(args[2],args[3]);
         }else if (operation.equals("remove")){
-            game.removePlayer(playerName);
+            game.removePlayer(args[2]);
         }else {
             System.out.println("Invalid Command");
         }
