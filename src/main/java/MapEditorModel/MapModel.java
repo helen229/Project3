@@ -1,6 +1,7 @@
 package MapEditorModel;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class MapModel {
@@ -327,6 +328,28 @@ public class MapModel {
         }
 
         return false;
+    }
+
+    HashMap<String,Integer> countryNumberNamePair = new HashMap<>();
+    public HashMap addCountryNumberNamePair(String countryName, int countryNumber){
+        countryNumberNamePair.put(countryName,countryNumber);
+        return countryNumberNamePair;
+    }
+
+    public int getCountryNumberFromName(String countryName){
+        int countryNumber;
+        if (countryNumberNamePair.containsKey(countryName)){
+            countryNumber = countryNumberNamePair.get(countryName);
+
+        }else {
+            //System.out.println(countryNumberNamePair.size());
+            countryNumberNamePair.put(countryName,countryNumberNamePair.size());
+            //System.out.println(countryNumberNamePair.size());
+            countryNumber = countryNumberNamePair.get(countryName);
+        }
+        return countryNumber;
+
+
     }
 
     /**

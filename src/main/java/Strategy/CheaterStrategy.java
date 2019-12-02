@@ -20,7 +20,7 @@ public class CheaterStrategy implements Strategy{
      * @param player player with this strategy
      */
     public CheaterStrategy(PlayerModel player, GameModel gameModel) {
-        name = "cheater";
+        name = "Cheater";
         this.player = player;
         this.gameModel = gameModel;
     }

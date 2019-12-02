@@ -14,6 +14,8 @@ public class CountryModel {
 
     private ArrayList<CountryModel> neighbours;
 
+    private ArrayList<String> neighboursNames;
+
     private int armyNum;
 
     private PlayerModel owner;
@@ -29,6 +31,7 @@ public class CountryModel {
         this.countryName = countryName;
         this.continentName = continentName;
         this.neighbours = new ArrayList<CountryModel>();
+        this.neighboursNames = new ArrayList<String>();
         this.owner = new PlayerModel("");
     }
 

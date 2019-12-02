@@ -1,0 +1,12 @@
+
+[Map]
+ww
+
+[Continents]
+Cockpit=3
+
+[Territories]
+Cockpit01,658,355,Cockpit,Cockpit02,Cockpit03
+Cockpit02,658,355,Cockpit,Cockpit01,Cockpit03
+Cockpit03,658,355,Cockpit,Cockpit02,Cockpit01
+

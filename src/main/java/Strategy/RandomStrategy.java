@@ -17,7 +17,7 @@ public class RandomStrategy implements Strategy{
      * @param player player with this strategy
      */
     public RandomStrategy(PlayerModel player, GameModel gameModel) {
-        name = "random";
+        name = "Random";
         this.player = player;
         this.gameModel = gameModel;
     }
