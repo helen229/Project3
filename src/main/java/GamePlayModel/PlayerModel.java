@@ -187,7 +187,7 @@ public class PlayerModel {
     /**
      * get the percentage of the map controlled by player
      */
-    public String percentageOfmap(int totalCountriesNum) {
+    public String percentageOfMap(int totalCountriesNum) {
         String percent = "";
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setMaximumFractionDigits(2);

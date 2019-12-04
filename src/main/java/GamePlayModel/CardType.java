@@ -46,6 +46,4 @@ public enum CardType {
         return CardTypeNumber;
     }
 
-
-
 }

@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 
 public class ChooseAdapter {
-    private boolean isSchoolFile = false;
+    private boolean isConquestFormat = false;
     private  static final String MAP_TAG= "[Map]";
     private static final String MAP="Map";
 
@@ -23,7 +23,7 @@ public class ChooseAdapter {
         this.fileDirectory = fileDirectory;
     }
 
-    public boolean isSchoolFile()throws IOException
+    public boolean isMapConquestFormat()throws IOException
     {
         FileReader file = new FileReader(fileDirectory);
         BufferedReader br = new BufferedReader(file);
@@ -46,15 +46,15 @@ public class ChooseAdapter {
                     int size = line.length();
                     switch (checker) {
                         case MAP:
-                            isSchoolFile = true;
+                            isConquestFormat = true;
                     }
-
                 }
-            } }
+            }
+        }
         else{
-            System.out.println(" File is Empty");
+            System.out.println("File is Empty");
         }
         file.close();
-        return isSchoolFile;
+        return isConquestFormat;
     }
 }

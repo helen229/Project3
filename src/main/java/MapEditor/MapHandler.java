@@ -100,7 +100,7 @@ public class MapHandler {
 
 //        EditMap readFile = new EditMap(fileName);
         try{
-            if (adp.isSchoolFile()){
+            if (adp.isMapConquestFormat()){
 
                 MapAdapter readFile = new MapAdapter(fileName);
                 try {

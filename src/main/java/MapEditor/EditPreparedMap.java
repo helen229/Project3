@@ -10,43 +10,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class EditPreparedMap {
-
-
-
     private  static final String MAP_TAG= "[Map]";
     private static final String MAP=" Map";
     private static final String CONTINENTS_TAG = "[Continents]";
-        private static final String CONTINENT = " continent";
-        private static final String COUNTRY_TAG = "[Territories]";
-        private static final String COUNTRY = "country";
-        private static final String BORDERS = "borders";
-        private static final String BORDERS_TAG = "[Territories]";
+    private static final String CONTINENT = " continent";
+    private static final String COUNTRY_TAG = "[Territories]";
+    private static final String COUNTRY = "country";
+    private static final String BORDERS = "borders";
+    private static final String BORDERS_TAG = "[Territories]";
 
     MapHandler m = new MapHandler();
+    private final String fileDirectory;
+    private ArrayList<ArrayList<String>> neighbourRelationList = new ArrayList<ArrayList<String>>();
+
+    private ArrayList<ArrayList<Integer>> neighbourRelationNumberList = new ArrayList<ArrayList<Integer>>();
+    private HashMap<Integer,ArrayList<Integer>> neighbourRelationNumberMap = new HashMap<>();
 
 
-//    private ArrayList<ContinentModel> continents = new ArrayList<ContinentModel>();
-//    private ArrayList<CountryModel> countries = new ArrayList<CountryModel>();
+    public EditPreparedMap(String fileDirectory) {
+        this.fileDirectory = fileDirectory;
+    }
 
-
-        private final String fileDirectory;
-        private ArrayList<ArrayList<String>> neighbourRelationList = new ArrayList<ArrayList<String>>();
-
-        private ArrayList<ArrayList<Integer>> neighbourRelationNumberList = new ArrayList<ArrayList<Integer>>();
-        private HashMap<Integer,ArrayList<Integer>> neighbourRelationNumberMap = new HashMap<>();
-
-
-        public EditPreparedMap(String fileDirectory) {
-            this.fileDirectory = fileDirectory;
-        }
-
-        /**
-         * This method checks the content of the file and stores the continents and countries appropriately
-         * including their association with each other.
-         *
-         * @throws IOException
-         */
-        MapModel mapModel = new MapModel();
+    /**
+     * This method checks the content of the file and stores the continents and countries appropriately
+     * including their association with each other.
+     *
+     * @throws IOException
+     */
+    MapModel mapModel = new MapModel();
 
     int continentValue = 0;
     int countryValue = 0;
@@ -56,7 +47,6 @@ public class EditPreparedMap {
             String line = br.readLine();
             String[] splitLine = line.split(" ");
             String checker = " ";
-//            MapModel mapModel = new MapModel();
             ArrayList<ContinentModel> continents = mapModel.getContinentList();
             ArrayList<CountryModel> countries = mapModel.getCountryList();
 
@@ -76,7 +66,6 @@ public class EditPreparedMap {
                             continue;
                         }
 
-
                         line.trim();
                         int size = line.length();
                         switch (checker) {
@@ -87,19 +76,11 @@ public class EditPreparedMap {
                                 if (size > 0) {
                                     String[] continentData = line.split("=");
                                     mapModel.addContinent(continentData[0], continentValue++);
-//                                ContinentModel c1 = new ContinentModel(continentData[0], Integer.parseInt(continentData[1]));
-//                                continents.add(c1);
-//                                CountryList = c1.getCountriesList();
-//                                for (String country : CountryList) {
-//                                    c1.addCountryToList(country);
-//                                }
-
                                 } else {
                                     continue;
                                 }
 
                                 break;
-
 
                             case COUNTRY:
                                 ArrayList<Integer> neigbour = new ArrayList<>();
@@ -122,12 +103,8 @@ public class EditPreparedMap {
                                 } else {
                                     continue;
                                 }
-
                                 break;
-
-
                         }
-
                     }
                 }
             } else {
@@ -137,17 +114,8 @@ public class EditPreparedMap {
             for (int i=0; i<neighbourRelationList.size();i++){
                 ArrayList<Integer> neighbourNumbers = new ArrayList<>();
                 for (int j=0; j<neighbourRelationList.get(i).size();j++){
-
-                    //System.out.println(neighbourRelationList.get(i).get(j));
                     int m = mapModel.getCountryNumberFromName(neighbourRelationList.get(i).get(j));
-                    //System.out.println(m);
-
                     neighbourNumbers.add(m);
-                    //System.out.println(neighbourNumbers.size());
-
-                    //neighbourRelationNumberMap.put()
-
-
                 }
                 neighbourRelationNumberList.add(i,neighbourNumbers);
             }
